@@ -1,0 +1,1558 @@
+{% extends 'muban.html' %}
+{% load static %}
+
+{% block css %}
+<title>后台管理</title>
+<style>
+/* 在现有的 CSS 中添加 */
+.card {
+    margin-bottom: 20px;
+}
+
+.card-body h5 {
+    color: #333;
+    margin-bottom: 15px;
+    border-bottom: 2px solid #667eea;
+    padding-bottom: 8px;
+}
+
+.card-body p {
+    margin-bottom: 10px;
+    line-height: 1.6;
+}
+
+.card-body strong {
+    color: #555;
+    min-width: 100px;
+    display: inline-block;
+}
+    body {
+        background: url('{% static 'img/bg.png' %}') no-repeat center center fixed;
+        background-size: 100% 100%;
+        margin: 0;
+        padding: 0;
+    }
+    .admin-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.search-box {
+    display: flex;
+}
+
+.search-box form {
+    display: flex;
+    gap: 10px;
+}
+
+.search-input {
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+    width: 300px;
+    outline: none;
+    transition: border-color 0.3s;
+}
+
+.search-input:focus {
+    border-color: #3498db;
+    box-shadow: 0 0 5px rgba(52, 152, 219, 0.3);
+}
+
+.search-btn {
+    padding: 8px 16px;
+    background-color: #3498db;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s;
+}
+
+.search-btn:hover {
+    background-color: #2980b9;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+    .admin-header {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .search-box form {
+        flex-direction: column;
+    }
+
+    .search-input {
+        width: 100%;
+    }
+}
+    .card-img-container {
+    height: 200px;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.card-img-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+    .card-title{
+        font-size: 18px !important;
+        font-weight: bold;
+    }
+    .card-text{
+        font-size: 15px !important;
+    }
+    .admin-container {
+        margin-top: 80px;
+        padding: 20px;
+    }
+
+    .admin-sidebar {
+        background: rgba(255, 255, 255, 0.5);
+        border-radius: 15px;
+        padding: 20px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        height: fit-content;
+    }
+
+    .admin-content {
+        background: rgba(255, 255, 255, 0.5);
+        border-radius: 15px;
+        padding: 30px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        min-height: 800px;
+    }
+
+    .sidebar-menu {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .sidebar-menu li {
+        margin-bottom: 10px;
+    }
+
+    .sidebar-menu a {
+        display: block;
+        padding: 12px 15px;
+        color: #333;
+        text-decoration: none;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+        font-weight: 500;
+    }
+
+    .sidebar-menu a:hover,
+    .sidebar-menu a.active {
+        background: linear-gradient(135deg, #de0606 0%, #764ba2 100%);
+        color: white;
+        transform: translateX(5px);
+    }
+
+    .admin-header {
+        border-bottom: 2px solid #eee;
+        padding-bottom: 15px;
+        margin-bottom: 25px;
+    }
+
+    .admin-header h2 {
+        color: #333;
+        margin: 0;
+        font-weight: bold;
+    }
+
+    .data-table {
+        width: 100%;
+        background: rgba(255,255,255, 0.5);
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .data-table th {
+        background: linear-gradient(135deg, #4a9ffa 0%, #4a9ffa 100%);
+        color: white;
+        padding: 15px;
+        text-align: left;
+        font-weight: 600;
+    }
+
+    .data-table td {
+        padding: 12px 15px;
+        border-bottom: 1px solid #eee;
+    }
+
+    .data-table tr:hover {
+        background-color: #f8f9fa;
+    }
+
+    .btn-action {
+        padding: 6px 12px;
+        margin: 2px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 12px;
+        transition: all 0.3s ease;
+    }
+
+    .btn-edit {
+        background: #28a745;
+        color: white;
+    }
+
+    .btn-delete {
+        background: #dc3545;
+        color: white;
+    }
+
+    .btn-add {
+        background: linear-gradient(135deg, #667eea 0%, #1e44ed 100%);
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 25px;
+        margin-bottom: 20px;
+        float: right;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-group label {
+        font-weight: bold;
+        color: #333;
+        margin-bottom: 8px;
+    }
+
+    .form-control {
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 10px 15px;
+        transition: all 0.3s ease;
+    }
+
+    .form-control:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+    }
+
+    .pagination {
+        margin-top: 20px;
+        justify-content: center;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 50px;
+        color: #666;
+    }
+
+    .empty-state i {
+        font-size: 48px;
+        margin-bottom: 20px;
+        color: #ddd;
+    }
+
+    /* 优化数据概览样式 */
+    .row .col-md-3 {
+        margin-bottom: 20px;
+    }
+
+    .card {
+        border: none;
+        border-radius: 15px;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+        overflow: hidden;
+    }
+
+    .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 12px 35px rgba(0, 0, 0, 0.15);
+    }
+
+    .card-body {
+        padding: 25px;
+        text-align: center;
+        position: relative;
+    }
+
+    .card-body::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+
+    .card.bg-primary .card-body::before {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+
+    .card.bg-success .card-body::before {
+        background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+    }
+
+    .card.bg-warning .card-body::before {
+        background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+    }
+
+    .card.bg-info .card-body::before {
+        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    }
+    .card.bg-tag .card-body::before {
+        background: linear-gradient(135deg, #4f00f9 0%, #b07af3 100%);
+    }
+
+    .card-body h4 {
+        font-size: 2.5rem;
+        font-weight: bold;
+        margin-bottom: 10px;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+    }
+
+    .card-body p {
+        font-size: 1rem;
+        margin: 0;
+        opacity: 0.9;
+        font-weight: 500;
+    }
+
+    .bg-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+    }
+
+    .bg-success {
+        background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%) !important;
+    }
+
+    .bg-warning {
+        background: linear-gradient(135deg, #fa709a 0%, #fee140 100%) !important;
+    }
+
+    .bg-info {
+        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%) !important;
+    }
+    .bg-tag {
+        background: linear-gradient(135deg, #7003aa 0%, #dbd0f3 100%) !important;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+    <div class="admin-container">
+        <div class="container-fluid">
+            <div class="row">
+                <!-- 左侧菜单 -->
+                <div class="col-md-3">
+                    <div class="admin-sidebar">
+                        <h4 style="color: #333; margin-bottom: 20px; text-align: center;">
+                            <i class="fa fa-cog"></i> 管理菜单
+                        </h4>
+                        <ul class="sidebar-menu">
+                            <li><a href="{% url 'admin_user' %}" class="{% if current_section == 'dashboard' %}active{% endif %}">
+                                <i class="fa fa-tachometer"></i> 数据概览
+                            </a></li>
+                            <li><a href="{% url 'admin_content' %}" class="{% if current_section == 'content' %}active{% endif %}">
+                                <i class="fa fa-file-text"></i> 文章管理
+                            </a></li>
+                            <li><a href="{% url 'admin_user_manage' %}" class="{% if current_section == 'users' %}active{% endif %}">
+                                <i class="fa fa-users"></i> 用户管理
+                            </a></li>
+                            <li><a href="{% url 'admin_comments' %}" class="{% if current_section == 'comments' %}active{% endif %}">
+                                <i class="fa fa-comments"></i> 留言管理
+                            </a></li>
+                            <li><a href="{% url 'admin_pictures' %}" class="{% if current_section == 'pictures' %}active{% endif %}">
+                                <i class="fa fa-picture-o"></i> 相册管理
+                            </a></li>
+                            <li><a href="{% url 'admin_leavemeg' %}" class="{% if current_section == 'leavemeg' %}active{% endif %}">
+                                <i class="fa fa-commenting"></i> 弹幕管理
+                            </a></li>
+                            <li><a href="{% url 'admin_tags' %}" class="{% if current_section == 'tags' %}active{% endif %}">
+                                <i class="fa fa-tags"></i> 标签管理
+                            </a></li>
+                            <li><a href="{% url 'admin_announcements' %}" class="{% if current_section == 'announcements' %}active{% endif %}">
+                                <i class="fa fa-bullhorn"></i> 公告管理
+                            </a></li>
+                            <li><a href="{% url 'admin_siteinfo' %}" class="{% if current_section == 'siteinfo' %}active{% endif %}">
+                                <i class="fa fa-info-circle"></i> 网站信息
+                            </a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- 右侧内容 -->
+                <div class="col-md-9">
+                    <div class="admin-content">
+                        {% if current_section == 'dashboard' %}
+                            <!-- 仪表盘 -->
+                            <div class="admin-header">
+                                <h2><i class="fa fa-tachometer"></i> 数据概览</h2>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <div class="card text-white bg-primary mb-3">
+                                        <div class="card-body">
+                                            <h4>{{ user_count }}</h4>
+                                            <p>用户总数</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="card text-white bg-success mb-3">
+                                        <div class="card-body">
+                                            <h4>{{ content_count }}</h4>
+                                            <p>文章总数</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="card text-white bg-warning mb-3">
+                                        <div class="card-body">
+                                            <h4>{{ comment_count }}</h4>
+                                            <p>留言总数</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="card text-white bg-info mb-3">
+                                        <div class="card-body">
+                                            <h4>{{ picture_count }}</h4>
+                                            <p>图片总数</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="card text-white bg-tag mb-3">
+                                        <div class="card-body">
+                                            <h4>{{ tag_count }}</h4>
+                                            <p>标签总数</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        {% elif current_section == 'content' %}
+                            <!-- 文章管理 -->
+                            <div class="admin-header">
+                                <h2><i class="fa fa-file-text"></i> 文章管理</h2>
+                                <a class="btn-add" href="/content/add/" style="text-decoration: none;color: white;">
+                                    <i class="fa fa-plus"></i> 添加文章
+                                </a>
+                            </div>
+                            {% if contents %}
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>文章封面</th>
+                                        <th>标题</th>
+                                        <th>标签</th>
+                                        <th>创建时间</th>
+                                        <th>点赞数</th>
+                                        <th>浏览量</th>
+                                        <th>操作</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for content in contents %}
+                                    <tr>
+                                        <td>{{ content.id }}</td>
+                                        <td><img src="/media/{{ content.cover_img }}" style="width: 300px; height:150px;"></td>
+                                        <td>{{ content.title }}</td>
+                                        <td>{{ content.tag }}</td>
+                                        <td>{{ content.date|date:"Y-m-d H:i" }}</td>
+                                        <td>{{ content.like_count }}</td>
+                                        <td>{{ content.look_count }}</td>
+                                        <td>
+                                            <a class="btn-action btn-edit" href="/content/article/edit/?nid={{content.id}}" >
+                                                <i class="fa fa-edit"></i> 编辑
+                                            </a>
+                                            <button class="btn-action btn-delete" onclick="deleteContent({{ content.id }})">
+                                                <i class="fa fa-trash"></i> 删除
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                                <ul class="pagination">
+                                    {{ page_string }}
+                                </ul>
+                            {% else %}
+                            <div class="empty-state">
+                                <i class="fa fa-file-text"></i>
+                                <h4>暂无文章</h4>
+                                <p>点击上方按钮添加第一篇文章</p>
+                            </div>
+                            {% endif %}
+
+                         {% elif current_section == 'users' %}
+                            <!-- 用户管理 -->
+                            <div class="admin-header">
+                                <h2><i class="fa fa-users"></i> 用户管理</h2>
+                                <!-- 搜索框 -->
+                                <div class="search-box">
+                                    <form method="get" action="">
+                                        <input type="hidden" name="section" value="users">
+                                        <input type="text" name="search" placeholder="搜索用户名..." value="{{ search_query|default:'' }}"
+                                               class="search-input">
+                                        <button type="submit" class="search-btn">
+                                            <i class="fa fa-search"></i> 搜索
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                            {% if users %}
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>用户头像</th>
+                                        <th>用户名</th>
+                                        <th>邮箱</th>
+                                        <th>身份</th>
+                                        <th>注册时间</th>
+                                        <th>操作</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for user in users %}
+                                    <tr>
+                                        <td>{{ user.id }}</td>
+                                        <td>
+                                            {% if user.avatar %}
+                                            <img src="{{ user.avatar.url }}" style="width: 30px; height: 30px; border-radius: 50%; margin-right: 10px;">
+                                            {% else %}
+                                            用户未设置头像
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {{ user.username }}
+                                        </td>
+                                         <td>
+                                            {% if user.email %}
+                                            {{ user.email }}
+                                            {% else %}
+                                            测试账号，未填写邮箱
+                                            {% endif %}
+                                        </td>
+                                        <td>{{ user.get_role_display }}</td>
+                                        <td>{{ user.date_joined|date:"Y-m-d H:i" }}</td>
+                                        <td>
+                                            <button class="btn-action btn-edit" onclick="editUser({{ user.id }})">
+                                                <i class="fa fa-edit"></i> 重置密码
+                                            </button>
+                                            {% if user.role != 1 %}
+                                            <button class="btn-action btn-delete" onclick="deleteUser({{ user.id }})">
+                                                <i class="fa fa-trash"></i> 删除
+                                            </button>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                            <ul class="pagination">
+                                {{ page_string }}
+                            </ul>
+                            {% else %}
+                            <div class="empty-state">
+                                <i class="fa fa-users"></i>
+                                <h4>暂无用户</h4>
+                            </div>
+                            {% endif %}
+
+                        {% elif current_section == 'comments' %}
+                            <!-- 留言管理 -->
+                            <div class="admin-header">
+                                <h2><i class="fa fa-comments"></i> 留言管理</h2>
+                            </div>
+
+                            {% if comments %}
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>用户</th>
+                                        <th>留言内容</th>
+                                        <th>留言时间</th>
+                                        <th>操作</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for comment in comments %}
+                                    <tr>
+                                        <td>{{ comment.user_id.username }}</td>
+                                        <td>{{ comment.content|truncatewords:10 }}</td>
+                                        <td>{{ comment.date|date:"Y-m-d H:i" }}</td>
+                                        <td>
+                                            <button class="btn-action btn-delete" onclick="deleteComment({{ comment.id }})">
+                                                <i class="fa fa-trash"></i> 删除
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                                <ul class="pagination">
+                                    {{ page_string }}
+                                </ul>
+                            {% else %}
+                            <div class="empty-state">
+                                <i class="fa fa-comments"></i>
+                                <h4>暂无留言</h4>
+                            </div>
+                            {% endif %}
+
+                        {% elif current_section == 'pictures' %}
+                            <!-- 相册管理 -->
+                            <div class="admin-header">
+                                <h2><i class="fa fa-picture-o"></i> 相册管理</h2>
+                                <button class="btn-add"  data-toggle="modal" data-target="#uploadModal">
+                                    <i class="fa fa-plus"></i> 添加图片
+                                </button>
+                            </div>
+
+                            {% if pictures %}
+                            <div class="row">
+                                {% for picture in pictures %}
+                                <div class="col-md-4 mb-3">
+                                    <div class="card">
+                                        <div class="card-img-container" style="height: 200px; overflow: hidden; display: flex; justify-content: center; align-items: center; background: #f8f9fa;">
+                                            <img src="/{{ picture.path }}" class="card-img-top" alt="{{ picture.title }}"
+                                                style="max-width: 100%; max-height: 100%; object-fit: contain;">
+                                        </div>
+                                        <div class="card-body">
+                                            <h5 class="card-title">{{ picture.title }}</h5>
+                                            <p class="card-text">{{ picture.description|truncatewords:5 }}</p>
+                                            <button class="btn-action btn-delete" onclick="deletePicture({{ picture.id }})">
+                                                <i class="fa fa-trash"></i> 删除
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+
+                            </div>
+                                <ul class="pagination">
+                                    {{ page_string }}
+                                </ul>
+                            {% else %}
+                            <div class="empty-state">
+                                <i class="fa fa-picture-o"></i>
+                                <h4>暂无图片</h4>
+                                <p>点击上方按钮添加第一张图片</p>
+                            </div>
+                            {% endif %}
+
+
+                        {% elif current_section == 'leavemeg' %}
+                            <!-- 弹幕管理 -->
+                            <div class="admin-header">
+                                <h2><i class="fa fa-commenting"></i> 弹幕管理</h2>
+                            </div>
+
+                            {% if leavemegs %}
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>弹幕内容</th>
+                                        <th>操作</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for leavemeg in leavemegs %}
+                                    <tr>
+                                        <td>{{ leavemeg.id }}</td>
+                                        <td>{{ leavemeg.content }}</td>
+                                        <td>
+                                            <button class="btn-action btn-delete" onclick="deleteLeaveMeg({{ leavemeg.id }})">
+                                                <i class="fa fa-trash"></i> 删除
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                                <ul class="pagination">
+                                    {{ page_string }}
+                                </ul>
+                            {% else %}
+                            <div class="empty-state">
+                                <i class="fa fa-commenting"></i>
+                                <h4>暂无弹幕</h4>
+                            </div>
+                            {% endif %}
+                        {% elif current_section == 'tags' %}
+                            <!-- 标签管理 -->
+                            <div class="admin-header">
+                                <h2><i class="fa fa-tags"></i> 标签管理</h2>
+                                <button class="btn-add" onclick="showTagForm()">
+                                    <i class="fa fa-plus"></i> 添加标签
+                                </button>
+                            </div>
+
+                            {% if tags %}
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>标签ID</th>
+                                        <th>标签名称</th>
+                                        <th>操作</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for tag in tags %}
+                                    <tr>
+                                        <td>{{ tag.id }}</td>
+                                        <td>{{ tag.tag }}</td>
+                                        <td>
+                                            <button class="btn-action btn-edit" onclick="editTag({{ tag.id }})">
+                                                <i class="fa fa-edit"></i> 编辑
+                                            </button>
+                                            <button class="btn-action btn-delete" onclick="deleteTag({{ tag.id }})">
+                                                <i class="fa fa-trash"></i> 删除
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                                <ul class="pagination">
+                                    {{ page_string }}
+                                </ul>
+                            {% else %}
+                            <div class="empty-state">
+                                <i class="fa fa-tags"></i>
+                                <h4>暂无标签</h4>
+                                <p>点击上方按钮添加第一个标签</p>
+                            </div>
+                            {% endif %}
+                        {% elif current_section == 'announcements' %}
+                            <!-- 公告管理 -->
+                            <div class="admin-header">
+                                <h2><i class="fa fa-bullhorn"></i> 公告管理</h2>
+                                <button class="btn-add" onclick="showAnnouncementForm()">
+                                    <i class="fa fa-plus"></i> 添加公告
+                                </button>
+                            </div>
+
+                            {% if announcements %}
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>版本号</th>
+                                        <th>更新内容</th>
+                                        <th>更新时间</th>
+                                        <th>操作</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for announcement in announcements %}
+                                    <tr>
+                                        <td>{{ announcement.id }}</td>
+                                        <td>{{ announcement.version }}</td>
+                                        <td>{{ announcement.content }}</td>
+                                        <td>{{ announcement.time|date:"Y-m-d H:i" }}</td>
+                                        <td>
+                                            <button class="btn-action btn-edit" onclick="editAnnouncement({{ announcement.id }})">
+                                                <i class="fa fa-edit"></i> 编辑
+                                            </button>
+                                            <button class="btn-action btn-delete" onclick="deleteAnnouncement({{ announcement.id }})">
+                                                <i class="fa fa-trash"></i> 删除
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                            <ul class="pagination">
+                                {{ page_string }}
+                            </ul>
+                            {% else %}
+                            <div class="empty-state">
+                                <i class="fa fa-bullhorn"></i>
+                                <h4>暂无公告</h4>
+                                <p>点击上方按钮添加第一条公告</p>
+                            </div>
+                            {% endif %}
+
+                            {% elif current_section == 'siteinfo' %}
+                            <!-- 网站信息管理 -->
+                            <div class="admin-header">
+                                <h2><i class="fa fa-info-circle"></i> 网站信息管理</h2>
+                                <button class="btn-add" onclick="showSiteInfoForm()">
+                                    <i class="fa fa-edit"></i> 编辑网站信息
+                                </button>
+                            </div>
+
+                            {% if site_info %}
+                            <div class="card">
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <h5><i class="fa fa-user"></i> 管理员信息</h5>
+                                            <p><strong>管理员：</strong>{{ site_info.admin.username }}</p>
+                                            <p><strong>文章访客量：</strong>{{ site_info.contents_count }}</p>
+                                            <p><strong>网站访客量：</strong>{{ site_info.site_count }}</p>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <h5><i class="fa fa-comment"></i> 公告与签名</h5>
+                                            <p><strong>博客公告：</strong>{{ site_info.site_meg|default:"暂无公告" }}</p>
+                                            <p><strong>个性签名：</strong>{{ site_info.signature|default:"暂无签名" }}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% else %}
+                            <div class="empty-state">
+                                <i class="fa fa-info-circle"></i>
+                                <h4>暂无网站信息</h4>
+                                <p>请联系系统管理员初始化网站信息</p>
+                            </div>
+                            {% endif %}
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+     <!-- 添加图片模态框 -->
+    <div class="modal fade upload-modal" id="uploadModal" tabindex="-1" role="dialog" aria-labelledby="uploadModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    <h4 class="modal-title" id="uploadModalLabel">添加新图片</h4>
+                </div>
+                <div class="modal-body">
+                    <form id="uploadForm">
+                            {% csrf_token %}
+
+                        <!-- 上传区域 -->
+                        <div class="upload-area">
+                            <label for="imageUpload"
+                                   style="display: block; cursor: pointer; padding: 40px 20px; margin: 0; text-align: center;">
+                                <i>📁</i>
+                                <h5>点击或拖拽图片到这里</h5>
+                                <p class="text-muted">支持 JPG, PNG, GIF 格式，最大 10MB</p>
+                            </label>
+                            <input type="file" id="imageUpload" accept="image/*" style="display: none;">
+                        </div>
+
+                        <!-- 图片预览 -->
+                        <div id="imagePreview" style="display: none; text-align: center; margin-bottom: 20px;">
+                            <img id="previewImg" src="" alt="预览图" style="max-width: 100%; max-height: 300px; border-radius: 8px;">
+                        </div>
+
+                        <!-- 表单字段 -->
+                        <div class="form-group">
+                            <label for="imageTitle">图片标题</label>
+                            <input type="text" class="form-control" id="imageTitle" placeholder="请输入图片标题">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="imageDescription">图片描述</label>
+                            <textarea class="form-control" id="imageDescription" rows="3" placeholder="请输入图片描述..."></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="imageDate">拍摄日期</label>
+                            <input type="date" class="form-control" id="imageDate">
+                            <p style="font-size: 12px;color: red;">chrome以外浏览器可能日期有BUG，点击右侧小日历选择即可</p>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary" id="saveImageBtn">保存图片</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 重置密码模态框 -->
+    <div class="modal fade" id="resetPasswordModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">重置用户密码</h5>
+                <button type="button" class="close" data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>新密码</label>
+                    <input type="password" class="form-control" id="newPassword" placeholder="请输入新密码">
+                </div>
+                <div class="form-group">
+                    <label>确认密码</label>
+                    <input type="password" class="form-control" id="confirmPassword" placeholder="请再次输入密码">
+                </div>
+                <div class="form-check">
+                    <input type="checkbox" class="form-check-input" id="useDefaultPassword">
+                    <label class="form-check-label" for="useDefaultPassword">使用默认密码 123456</label>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-primary" id="confirmResetBtn">确认重置</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+    <!-- 在现有的模态框后面添加 -->
+
+    <!-- 添加/编辑公告模态框 -->
+    <div class="modal fade" id="announcementModal" tabindex="-1" role="dialog" aria-labelledby="announcementModalLabel">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="announcementModalLabel">添加公告</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="announcementForm">
+                        {% csrf_token %}
+                        <input type="hidden" id="announcementId" name="announcement_id">
+
+                        <div class="form-group">
+                            <label for="announcementVersion">版本号</label>
+                            <input type="text" class="form-control" id="announcementVersion"
+                                   placeholder="请输入版本号（例如：v1.0.0）" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="announcementContent">更新内容</label>
+                            <textarea class="form-control" id="announcementContent" rows="6"
+                                      placeholder="请输入详细的更新内容..." required></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary" id="saveAnnouncementBtn">保存公告</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 网站信息编辑模态框 -->
+    <div class="modal fade" id="siteInfoModal" tabindex="-1" role="dialog" aria-labelledby="siteInfoModalLabel">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="siteInfoModalLabel">编辑网站信息</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="siteInfoModalForm">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <label>管理员</label>
+                            <input type="text" class="form-control" value="{{ site_info.admin.username }}" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label>文章总浏览量</label>
+                            <input type="text" class="form-control" value="{{ site_info.contents_count }} (自动计算)" readonly>
+                            <small class="form-text text-muted">此数值自动从所有文章的总浏览量计算得出</small>
+                        </div>
+                        <div class="form-group">
+                            <label>网站总访客量</label>
+                            <input type="text" class="form-control" value="{{ site_info.site_count }} (自动统计)" readonly>
+                            <small class="form-text text-muted">此数值自动统计网站访问次数</small>
+                        </div>
+                        <div class="form-group">
+                            <label for="modalSiteMeg">博客公告</label>
+                            <textarea class="form-control" id="modalSiteMeg" name="site_meg" rows="3"
+                                      placeholder="请输入博客公告内容">{{ site_info.site_meg }}</textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="modalSignature">个性签名</label>
+                            <textarea class="form-control" id="modalSignature" name="signature" rows="2"
+                                      placeholder="请输入个性签名">{{ site_info.signature }}</textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary" id="saveSiteInfoBtn">保存更改</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block js %}
+<script>
+// 图片上传功能
+$(document).ready(function () {
+            // 上传图片功能
+            $('#uploadArea').click(function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                $('#imageUpload').trigger('click'); // 确保触发点击
+            });
+
+            // 图片预览功能
+            $('#imageUpload').change(function(e) {
+                var file = e.target.files[0];
+                if (file) {
+                    // 文件类型验证
+                    var validTypes = ['image/jpeg', 'image/png', 'image/gif'];
+                    if (!validTypes.includes(file.type)) {
+                        alert('请上传 JPG、PNG 或 GIF 格式的图片');
+                        $(this).val(''); // 清空文件选择
+                        return;
+                    }
+
+                    // 文件大小验证 (5MB)
+                    if (file.size > 10 * 1024 * 1024) {
+                        alert('图片大小不能超过 10MB');
+                        $(this).val(''); // 清空文件选择
+                        return;
+                    }
+
+                    var reader = new FileReader();
+                    reader.onload = function(e) {
+                        $('#previewImg').attr('src', e.target.result);
+                        $('#imagePreview').show();
+                    }
+                    reader.readAsDataURL(file);
+                }
+            });
+
+            // 拖拽上传功能
+            $('#uploadArea').on('dragover', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                $(this).css({
+                    'border-color': '#667eea',
+                    'background-color': '#f8f9fa'
+                });
+            });
+
+            $('#uploadArea').on('dragleave', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                $(this).css({
+                    'border-color': '#ccc',
+                    'background-color': 'transparent'
+                });
+            });
+
+            $('#uploadArea').on('drop', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                var files = e.originalEvent.dataTransfer.files;
+                if (files.length > 0) {
+                    $('#imageUpload')[0].files = files;
+                    $('#imageUpload').trigger('change');
+                }
+                $(this).css({
+                    'border-color': '#ccc',
+                    'background-color': 'transparent'
+                });
+            });
+
+            // 保存图片功能 - 使用AJAX上传
+            $('#saveImageBtn').click(function(e) {
+    e.preventDefault(); // 使用 preventDefault 而不是 stopPropagation
+
+    var title = $('#imageTitle').val();
+    var description = $('#imageDescription').val();
+    var date = $('#imageDate').val();
+    var file = $('#imageUpload')[0].files[0];
+
+    if (!file) {
+        alert('请选择一张图片');
+        return;
+    }
+
+    if (!title) {
+        alert('请输入图片标题');
+        return;
+    }
+
+    // 获取 CSRF token
+    var csrfToken = $('input[name="csrfmiddlewaretoken"]').val();
+
+    // 创建FormData对象
+    var formData = new FormData();
+    formData.append('image', file);
+    formData.append('title', title);
+    formData.append('description', description);
+    if (date) {
+        formData.append('capture_date', date);
+    }
+
+    // 显示加载状态
+    var $btn = $(this);
+    $btn.prop('disabled', true).text('上传中...');
+
+    // AJAX上传
+    $.ajax({
+        url: '/upload_pic/',  // 确保这个URL正确
+        type: 'POST',
+        data: formData,
+        processData: false,
+        contentType: false,
+        headers: {
+            'X-CSRFToken': csrfToken  // 添加 CSRF token 到请求头
+        },
+        success: function(response) {
+            console.log('上传响应:', response); // 添加日志
+            if (response.status === 'success') {
+                alert('图片上传成功！');
+                $('#uploadModal').modal('hide');
+
+                // 重置表单
+                $('#uploadForm')[0].reset();
+                $('#imagePreview').hide();
+
+                // 可选：刷新页面或动态添加新图片
+                location.reload(); // 简单刷新页面
+            } else {
+                alert('上传失败: ' + response.message);
+            }
+        },
+        error: function(xhr, status, error) {
+            console.error('上传错误:', error, xhr.responseText);
+            alert('上传出错: ' + (xhr.responseJSON ? xhr.responseJSON.message : error));
+        },
+        complete: function() {
+            $btn.prop('disabled', false).text('保存图片');
+        }
+    });
+});
+});
+function editContent(id) {
+    alert('编辑文章 ID: ' + id);
+    // 这里可以打开编辑模态框或跳转到编辑页面
+}
+
+function deleteContent(id) {
+    if (confirm('确定要删除这篇文章吗？')) {
+        $.ajax({
+            url: '/admin/delete_content/' + id + '/',
+            type: 'POST',
+            data: {
+                'csrfmiddlewaretoken': '{{ csrf_token }}'
+            },
+            success: function(response) {
+                if (response.success) {
+                    location.reload();
+                } else {
+                    alert('删除失败');
+                }
+            }
+        });
+    }
+}
+
+// 用户管理函数
+function editUser(id) {
+    //id 用户 向后台发送ajax的POST请求，重置密码
+
+}
+
+function deleteUser(id) {
+    if (confirm('确定要删除这个用户吗？')) {
+        $.ajax({
+            url: '/admin/delete_user/' + id + '/',
+            type: 'POST',
+            data: {
+                'csrfmiddlewaretoken': '{{ csrf_token }}'
+            },
+            success: function(response) {
+                if (response.success) {
+                    location.reload();
+                } else {
+                    alert('删除失败');
+                }
+            }
+        });
+    }
+}
+
+// 留言管理函数
+function deleteComment(id) {
+    if (confirm('确定要删除这条留言吗？')) {
+        $.ajax({
+            url: '/admin/delete_comment/' + id + '/',
+            type: 'POST',
+            data: {
+                'csrfmiddlewaretoken': '{{ csrf_token }}'
+            },
+            success: function(response) {
+                if (response.success) {
+                    location.reload();
+                } else {
+                    alert('删除失败');
+                }
+            }
+        });
+    }
+}
+
+// 图片管理函数
+function showPictureForm() {
+    alert('打开添加图片表单');
+}
+
+function deletePicture(id) {
+    if (confirm('确定要删除这张图片吗？')) {
+        $.ajax({
+            url: '/admin/delete_picture/' + id + '/',
+            type: 'POST',
+            data: {
+                'csrfmiddlewaretoken': '{{ csrf_token }}'
+            },
+            success: function(response) {
+                if (response.success) {
+                    location.reload();
+                } else {
+                    alert('删除失败');
+                }
+            }
+        });
+    }
+}
+
+// 弹幕管理函数
+function deleteLeaveMeg(id) {
+    if (confirm('确定要删除这条弹幕吗？')) {
+        $.ajax({
+            url: '/admin/delete_leavemeg/' + id + '/',
+            type: 'POST',
+            data: {
+                'csrfmiddlewaretoken': '{{ csrf_token }}'
+            },
+            success: function(response) {
+                if (response.success) {
+                    location.reload();
+                } else {
+                    alert('删除失败');
+                }
+            }
+        });
+    }
+}
+// 标签管理函数
+function showTagForm() {
+    const tagName = prompt('请输入标签名称:');
+    if (tagName && tagName.trim() !== '') {
+        $.ajax({
+            url: '/admin_user/add_tag/',
+            type: 'POST',
+            data: {
+                'tag_name': tagName,
+                'csrfmiddlewaretoken': '{{ csrf_token }}'
+            },
+            success: function(response) {
+                if (response.success) {
+                    location.reload();
+                } else {
+                    alert('添加失败');
+                }
+            }
+        });
+    }
+}
+
+function editTag(id) {
+    // 获取标签数据
+    $.ajax({
+        url: '/admin/edit_tag/' + id + '/',
+        type: 'GET',
+        success: function(response) {
+            if (response.success) {
+                const tag = response.data;
+                const newTagName = prompt('请输入新的标签名称:', tag.tag);
+
+                if (newTagName && newTagName.trim() !== '') {
+                    const formData = new FormData();
+                    formData.append('tag_name', newTagName.trim());
+
+                    $.ajax({
+                        url: '/admin/edit_tag/' + id + '/',
+                        type: 'POST',
+                        data: formData,
+                        processData: false,
+                        contentType: false,
+                        headers: {
+                            'X-CSRFToken': '{{ csrf_token }}'
+                        },
+                        success: function(response) {
+                            if (response.success) {
+                                alert('标签更新成功');
+                                location.reload();
+                            } else {
+                                alert(response.message || '更新失败');
+                            }
+                        }
+                    });
+                }
+            } else {
+                alert('获取标签数据失败');
+            }
+        }
+    });
+}
+
+function deleteTag(id) {
+    if (confirm('确定要删除这个标签吗？')) {
+        $.ajax({
+            url: '/admin_user/delete_tag/' + id + '/',
+            type: 'POST',
+            data: {
+                'csrfmiddlewaretoken': '{{ csrf_token }}'
+            },
+            success: function(response) {
+                if (response.success) {
+                    location.reload();
+                } else {
+                    alert('删除失败');
+                }
+            }
+        });
+    }
+}
+{#重置密码#}
+let currentUserId = null;
+
+function editUser(id) {
+    currentUserId = id;
+    $('#resetPasswordModal').modal('show');
+}
+
+$(document).ready(function() {
+    // 使用默认密码复选框
+    $('#useDefaultPassword').change(function() {
+        if ($(this).is(':checked')) {
+            $('#newPassword').val('123456').prop('disabled', true);
+            $('#confirmPassword').val('123456').prop('disabled', true);
+        } else {
+            $('#newPassword').val('').prop('disabled', false);
+            $('#confirmPassword').val('').prop('disabled', false);
+        }
+    });
+
+    // 确认重置密码
+    $('#confirmResetBtn').click(function() {
+        const newPassword = $('#newPassword').val();
+        const confirmPassword = $('#confirmPassword').val();
+
+        if (!newPassword) {
+            alert('请输入新密码');
+            return;
+        }
+
+        if (newPassword !== confirmPassword) {
+            alert('两次输入的密码不一致');
+            return;
+        }
+
+        $.ajax({
+            url: '/admin/reset_password/' + currentUserId + '/',
+            type: 'POST',
+            data: {
+                'new_password': newPassword,
+                'csrfmiddlewaretoken': '{{ csrf_token }}'
+            },
+            success: function(response) {
+                if (response.success) {
+                    alert('密码重置成功！');
+                    $('#resetPasswordModal').modal('hide');
+                    // 重置表单
+                    $('#newPassword').val('');
+                    $('#confirmPassword').val('');
+                    $('#useDefaultPassword').prop('checked', false);
+                } else {
+                    alert('重置失败: ' + response.message);
+                }
+            }
+        });
+    });
+});
+
+// 公告管理函数
+function showAnnouncementForm() {
+    // 重置表单
+    $('#announcementForm')[0].reset();
+    $('#announcementId').val('');
+    $('#announcementModalLabel').text('添加公告');
+    $('#announcementModal').modal('show');
+}
+
+function editAnnouncement(id) {
+    // 获取公告数据
+    $.ajax({
+        url: '/admin/edit_announcement/' + id + '/',
+        type: 'GET',
+        success: function(response) {
+            if (response.success) {
+                const announcement = response.data;
+                // 填充表单
+                $('#announcementId').val(announcement.id);
+                $('#announcementVersion').val(announcement.version);
+                $('#announcementContent').val(announcement.content);
+                $('#announcementModalLabel').text('编辑公告');
+                $('#announcementModal').modal('show');
+            } else {
+                alert('获取公告数据失败');
+            }
+        },
+        error: function() {
+            alert('获取公告数据时发生错误');
+        }
+    });
+}
+
+// 保存公告
+$('#saveAnnouncementBtn').click(function() {
+    const version = $('#announcementVersion').val().trim();
+    const content = $('#announcementContent').val().trim();
+    const announcementId = $('#announcementId').val();
+
+    if (!version) {
+        alert('请输入版本号');
+        return;
+    }
+
+    if (!content) {
+        alert('请输入更新内容');
+        return;
+    }
+
+    const url = announcementId ?
+        '/admin/edit_announcement/' + announcementId + '/' :
+        '/admin/add_announcement/';
+
+    const formData = new FormData();
+    formData.append('version', version);
+    formData.append('content', content);
+
+    // 显示加载状态
+    const $btn = $(this);
+    $btn.prop('disabled', true).text('保存中...');
+
+    $.ajax({
+        url: url,
+        type: 'POST',
+        data: formData,
+        processData: false,
+        contentType: false,
+        headers: {
+            'X-CSRFToken': '{{ csrf_token }}'
+        },
+        success: function(response) {
+            if (response.success) {
+                alert('公告保存成功！');
+                $('#announcementModal').modal('hide');
+                location.reload();
+            } else {
+                alert('保存失败: ' + response.message);
+            }
+        },
+        error: function(xhr, status, error) {
+            alert('保存时发生错误: ' + error);
+        },
+        complete: function() {
+            $btn.prop('disabled', false).text('保存公告');
+        }
+    });
+});
+
+function deleteAnnouncement(id) {
+    if (confirm('确定要删除这条公告吗？')) {
+        $.ajax({
+            url: '/admin/delete_announcement/' + id + '/',
+            type: 'POST',
+            data: {
+                'csrfmiddlewaretoken': '{{ csrf_token }}'
+            },
+            success: function(response) {
+                if (response.success) {
+                    location.reload();
+                } else {
+                    alert('删除失败');
+                }
+            }
+        });
+    }
+}
+
+// 网站信息管理函数
+function showSiteInfoForm() {
+    $('#siteInfoModal').modal('show');
+}
+
+$('#saveSiteInfoBtn').click(function() {
+    const formData = new FormData();
+    formData.append('site_meg', $('#modalSiteMeg').val());
+    formData.append('signature', $('#modalSignature').val());
+
+    // 显示加载状态
+    const $btn = $(this);
+    $btn.prop('disabled', true).text('保存中...');
+
+    $.ajax({
+        url: '/admin/update_siteinfo/',
+        type: 'POST',
+        data: formData,
+        processData: false,
+        contentType: false,
+        headers: {
+            'X-CSRFToken': '{{ csrf_token }}'
+        },
+        success: function(response) {
+            if (response.success) {
+                alert('网站信息更新成功！');
+                $('#siteInfoModal').modal('hide');
+                location.reload();
+            } else {
+                alert('更新失败: ' + response.message);
+            }
+        },
+        error: function(xhr, status, error) {
+            alert('更新时发生错误: ' + error);
+        },
+        complete: function() {
+            $btn.prop('disabled', false).text('保存更改');
+        }
+    });
+});
+
+</script>
+{% endblock %}

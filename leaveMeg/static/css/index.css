@@ -1,0 +1,300 @@
+    /* 第二页美化样式 */
+
+
+        .panel {
+            border-radius: 10px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+            border: none;
+            overflow: hidden;
+        }
+
+        .panel-default {
+            background: rgba(255, 255, 255, 0.95);
+        }
+
+        .panel-info {
+            background: rgba(255, 255, 255, 0.95);
+        }
+
+        .panel-heading {
+            border: none;
+            padding: 20px;
+            background: linear-gradient(135deg, #6366f1  , #764ba2) !important;
+            color: white;
+        }
+
+        .panel-title {
+            font-size:1.8rem;
+            font-weight: 600;
+            margin: 0;
+            text-align: center;
+        }
+
+        .panel-body {
+            padding: 10px;
+        }
+
+        .media {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+            border-left: 4px solid #c4b5fd ;
+            transition: all 0.3s ease;
+        }
+
+        .media:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .media-object {
+            border-radius: 6px;
+            transition: transform 0.3s ease;
+        }
+
+        .media-object:hover {
+            transform: scale(1.03);
+        }
+
+        .media-heading {
+            color: #2c3e50;
+            font-size: 2rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .media-body p {
+            color: #555;
+            line-height: 1.6;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+/* 向下箭头样式 */
+.down-arrow {
+    position: absolute;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    cursor: pointer;
+    z-index: 10; /* 最高层级，不影响点击 */
+    animation: bounce 2s infinite;
+    color: white;
+    font-size: 40px;
+    text-shadow: 0 0 10px rgba(0,0,0,0.5);
+}
+/*视频背景配置*/
+#video-background {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: -1;
+}
+
+/* 箭头动画 */
+@keyframes bounce {
+    0%, 20%, 50%, 80%, 100% {
+        transform: translateX(-50%) translateY(0);
+    }
+    40% {
+        transform: translateX(-50%) translateY(-10px);
+    }
+    60% {
+        transform: translateX(-50%) translateY(-5px);
+    }
+}
+
+
+/* 打字机容器样式 */
+.typed-container {
+    display: inline-block;
+    position: relative;
+    padding: 15px 20px;
+    border-radius: 10px;
+    background: rgba(0, 0, 0, 0.6); /* 半透明黑色背景 */
+    backdrop-filter: blur(5px); /* 毛玻璃效果 */
+    -webkit-backdrop-filter: blur(5px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    max-width: 70%;
+    margin: 0 auto;
+}
+
+/* 打字文字样式 */
+#element {
+    font-size: 18px;
+    font-weight: bold;
+    color: white;
+    font-family: 'Microsoft YaHei', sans-serif;
+    line-height: 1.6;
+    margin: 0;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+/* 光标样式 */
+.typed-cursor {
+    color: #ffffff; /* 白色光标 */
+    font-size: 25px;
+    font-weight: bold;
+}
+
+/* 主容器居中 */
+.containers {
+      width: 100%;
+      margin-right: auto;
+      margin-left: auto;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    height: 40vh;
+    padding: 20px;
+    position: relative;
+     z-index: 999;
+    box-sizing: border-box;
+}
+
+/* 博客标题样式 */
+.blog-title {
+    color: white;
+    font-size: 70px;
+    font-weight: bold;
+    text-align: center;
+    margin-top:20%;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.7);
+    font-family: 'Microsoft YaHei', sans-serif;
+    z-index: 2; /* 高于气泡层级 */
+    position: relative;
+}
+
+    /* 面板样式 */
+        .panel {
+            border-radius: 10px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+            border: none;
+            overflow: hidden;
+            margin-bottom: 30px;
+        }
+
+        .panel-default {
+            background: rgba(255, 255, 255, 0.95);
+        }
+
+        .panel-info {
+            background: rgba(255, 255, 255, 0.95);
+        }
+
+        .panel-heading {
+            border: none;
+            padding: 20px;
+            background: linear-gradient(135deg, #6366f1, #764ba2) !important;
+            color: white;
+        }
+
+
+        .panel-body {
+            padding: 20px;
+        }
+
+        /* 文章卡片样式 - 重点修改部分 */
+        .media {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+            border-left: 4px solid #c4b5fd;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            overflow: hidden;
+            transform: translateY(0);
+            cursor: pointer;
+        }
+
+        /* 悬停上浮效果 */
+        .media:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+            border-left: 4px solid #6366f1;
+        }
+
+        /* 添加悬停时的光晕效果 */
+        .media::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+            transition: left 0.5s;
+        }
+
+        .media:hover::before {
+            left: 100%;
+        }
+
+        .media-object {
+            border-radius: 6px;
+            transition: transform 0.4s ease;
+        }
+
+        .media-object:hover {
+            transform: scale(1.05);
+        }
+
+        .media-heading {
+            color: #2c3e50;
+            font-size: 1.8rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+            transition: color 0.3s;
+        }
+
+        .media:hover .media-heading {
+            color: #6366f1;
+        }
+
+        .media-body p {
+            color: #555;
+            line-height: 1.6;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            transition: color 0.3s;
+        }
+
+        .media:hover .media-body p {
+            color: #666;
+        }
+
+        /* 标签样式 */
+        .tag {
+            float: right;
+            background: #c4b5fd;
+            color: white;
+            padding: 8px 10px;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: 500;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .more-link{
+            color: white;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .more-link:hover {
+            color: #fdfdff; /* 浅紫色 */
+            text-decoration: none;
+
+        }

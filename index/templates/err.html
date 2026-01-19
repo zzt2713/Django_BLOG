@@ -1,0 +1,163 @@
+{% extends 'muban.html' %}
+{% load static %}
+
+{% block css %}
+    <title>MY BLOG - 访问受限</title>
+    <link rel="stylesheet" href="{% static 'css/fullpage.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .fp-watermark {
+            display: none !important;
+        }
+
+        #fp-nav {
+            display: none !important;
+        }
+
+        .fp-slidesNav {
+            display: none !important;
+        }
+
+        /* 自定义样式 */
+        .access-denied-container {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            text-align: center;
+            padding: 20px;
+        }
+
+        .access-denied-icon {
+            font-size: 8rem;
+            color: #ff4757;
+            margin-bottom: 30px;
+            animation: pulse 2s infinite;
+        }
+
+        .access-denied-title {
+            font-size: 3rem;
+            color: #2f3542;
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+
+        .access-denied-message {
+            font-size: 1.5rem;
+            color: #57606f;
+            margin-bottom: 20px;
+            max-width: 600px;
+            line-height: 1.6;
+        }
+
+        .countdown-timer {
+            font-size: 1.3rem;
+            color: #3742fa;
+            margin-bottom: 30px;
+            background: rgba(255, 255, 255, 0.8);
+            padding: 10px 25px;
+            border-radius: 25px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .countdown-timer i {
+            margin-right: 8px;
+        }
+
+        .login-button {
+            background-color: #3742fa;
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.2rem;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(55, 66, 250, 0.3);
+        }
+
+        .login-button:hover {
+            background-color: #2f34cc;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(55, 66, 250, 0.4);
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.1);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .access-denied-icon {
+                font-size: 5rem;
+            }
+
+            .access-denied-title {
+                font-size: 2rem;
+            }
+
+            .access-denied-message {
+                font-size: 1.2rem;
+            }
+
+            .countdown-timer {
+                font-size: 1.1rem;
+                padding: 8px 20px;
+            }
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <div class="access-denied-container">
+        <div class="access-denied-icon">
+            <i class="fas fa-exclamation-triangle"></i>
+        </div>
+        <h1 class="access-denied-title">无权访问</h1>
+        <p class="access-denied-message">抱歉，您没有权限访问此页面。请先登录您的账户或联系管理员升级您账号权限。</p>
+
+        <!-- 倒计时显示 -->
+        <div class="countdown-timer">
+            <i class="fas fa-clock"></i>
+            <span id="countdown">3</span>秒后自动跳转到登录页面...
+        </div>
+
+        <button class="login-button" onclick="window.location.href='/'">
+            <i class="fas fa-home"></i> 立即返回首页
+        </button>
+    </div>
+{% endblock %}
+
+{% block js %}
+    <script src="../static/js/fullpage.min.js"></script>
+    <script>
+        // 倒计时功能
+        let countdown = 3;
+        const countdownElement = document.getElementById('countdown');
+
+        // 更新倒计时显示
+        const countdownInterval = setInterval(function() {
+            countdown--;
+            countdownElement.textContent = countdown;
+
+            if (countdown <= 0) {
+                clearInterval(countdownInterval);
+                window.location.href = '/index/login/';  // 跳转到首页
+            }
+        }, 1000);
+
+        setTimeout(function() {
+            window.location.href = '/index/login/';  // 跳转到首页
+        }, 3000);
+    </script>
+{% endblock %}

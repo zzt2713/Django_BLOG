@@ -1,0 +1,1042 @@
+{% extends 'muban.html' %}
+{% load static %}
+{% block css %}
+    <title>留言</title>
+    <style>
+        /* 弹幕计数样式 */
+        .danmu-count {
+            position: absolute;
+            bottom: 30px;
+            left: 80px;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 12px 20px;
+            border-radius: 25px;
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+
+        .danmu-count:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .danmu-count::before {
+            content: "🎯 ";
+            margin-right: 5px;
+        }
+            .custom-message {
+                position: fixed;
+                top: 20px;
+                left: 42%;
+                padding: 15px 25px;
+                border-radius: 8px;
+                color: white;
+                font-weight: bold;
+                z-index: 10000;
+                box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+                text-align: center;
+                min-width: 200px;
+                max-width: 15%;  
+                animation: slideDown 0.3s ease;
+            }
+            .message-success {
+                background: linear-gradient(135deg, #4CAF50, #45a049);
+                border: 1px solid #2e7d32;
+            }
+            .message-error {
+                background: linear-gradient(135deg, #f44336, #d32f2f);
+                border: 1px solid #b71c1c;
+            }
+            @keyframes slideDown {
+                from { transform: translateX(-50%) translateY(-100%); opacity: 0; }
+                to { transform: translateX(-50%) translateY(0); opacity: 1; }
+            }
+        /* 确保body和html可以滚动 */
+        body, html {
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+            overflow-y: auto;
+            height: 100%;
+            scroll-behavior: smooth;
+        }
+
+        /* 向下箭头样式 */
+        .down-arrow {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1000;
+            cursor: pointer;
+            animation: bounce 2s infinite;
+            background: rgba(255, 255, 255, 0.2);
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .down-arrow:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateX(-50%) scale(1.1);
+        }
+
+        .down-arrow .glyphicon-chevron-down {
+            color: white;
+            font-size: 24px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        /* 弹跳动画 */
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {
+                transform: translateX(-50%) translateY(0);
+            }
+            40% {
+                transform: translateX(-50%) translateY(-10px);
+            }
+            60% {
+                transform: translateX(-50%) translateY(-5px);
+            }
+        }
+
+        /* 弹幕容器样式 - 限制在输入框上方 */
+        .danmu-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: calc(100vh - 250px); /* 减去输入框和底部空间 */
+            pointer-events: none;
+            z-index: 1;
+            overflow: hidden;
+        }
+
+        /* 单个弹幕样式 */
+        .danmu {
+            position: absolute;
+            white-space: nowrap;
+            color: white;
+            font-size: 18px;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+            padding: 5px 15px;
+            background: linear-gradient(135deg, rgba(255,255,255,0.2), rgba(255,255,255,0.1));
+            border-radius: 20px;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255,255,255,0.3);
+            pointer-events: none;
+            animation: danmu-move 15s linear forwards;
+            will-change: transform;
+        }
+        /* 弹幕头像样式 */
+        .danmu-avatar {
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            margin-right: 8px;
+            border: 2px solid rgba(255, 255, 255, 0.8);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+            vertical-align: middle;
+        }
+
+        /* 弹幕文本样式 */
+        .danmu-text {
+            vertical-align: middle;
+            display: inline-block;
+        }
+
+
+        @keyframes danmu-move {
+            from {
+                transform: translateX(100vw);
+            }
+            to {
+                transform: translateX(-100%);
+            }
+        }
+
+        /* 输入区域样式 */
+        .danmu-input-container {
+            position: absolute;
+            bottom: 150px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80%;
+            max-width: 600px;
+            z-index: 1000;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+        }
+
+        .danmu-input-group {
+            display: flex;
+            gap: 10px;
+            width: 100%;
+        }
+
+        #id_content {
+            flex: 1;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 25px;
+            font-size: 16px;
+            outline: none;
+            width: 100%;
+            transition: all 0.3s ease;
+        }
+
+        #id_content:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 10px rgba(102, 126, 234, 0.3);
+        }
+
+        #dmForm {
+            width: 100%;
+            display: flex;
+            align-items: center;
+        }
+
+        .danmu-send-btn {
+            margin: 0 15px;
+            padding: 12px 25px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .danmu-send-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .danmu-send-btn:active {
+            transform: translateY(0);
+        }
+
+        /* 加载提示 */
+        .loading {
+            color: white;
+            text-align: center;
+            padding: 20px;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        /* 主容器样式 */
+        .container {
+            position: relative;
+            min-height: 100vh;
+            width: 100%;
+        }
+
+        /* 第一个容器保持全屏且不滚动 */
+        .container:first-of-type {
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* 第二个容器样式 - 评论区 */
+        .container:nth-of-type(2) {
+         
+            padding: 50px 20px;
+            min-height: 100vh;
+        }
+
+        /* 评论区样式 */
+        .comments-section {
+            max-width: 800px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(10px);
+        }
+
+        .comments-title {
+            text-align: center;
+            color: #333;
+            font-size: 2.5rem;
+            margin-bottom: 30px;
+            font-weight: bold;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .comment-form {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            border: 2px solid #e9ecef;
+        }
+
+        .comment-input {
+            width: 100%;
+            min-height: 100px;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            font-size: 16px;
+            resize: vertical;
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .comment-input:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 10px rgba(102, 126, 234, 0.3);
+            outline: none;
+        }
+
+        .submit-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            float: right;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .comments-list {
+            margin-top: 30px;
+        }
+
+        .comment-item {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            border-left: 4px solid #667eea;
+            transition: all 0.3s ease;
+        }
+
+        .comment-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .comment-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .comment-author {
+            font-weight: bold;
+            color: #667eea;
+            font-size: 16px;
+        }
+
+        .comment-time {
+            color: #6c757d;
+            font-size: 14px;
+        }
+
+        .comment-content {
+            color: #333;
+            line-height: 1.6;
+            font-size: 15px;
+        }
+
+        .no-comments {
+            text-align: center;
+            color: #6c757d;
+            padding: 40px;
+            font-size: 18px;
+        }
+        body{
+            background: url('{% static 'img/d1.webp' %}') no-repeat;background-size: cover;width: 100%;height: 100vh;position: relative;
+        }
+        .user-card {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            padding: 8px 12px;
+            border-radius: 25px;
+            border: 1px solid #e0e0e0;
+        }
+
+        .user-info-card {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .username {
+            font-weight: bold;
+            color: #333;
+            font-size: 14px;
+        }
+
+        .user-badge {
+            background: #667eea;
+            color: white;
+            padding: 2px 6px;
+            border-radius: 10px;
+            font-size: 10px;
+            font-weight: bold;
+        }
+
+        /* 评论头部布局 */
+        .comment-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .comment-time {
+            color: #888;
+            font-size: 12px;
+            white-space: nowrap;
+        }
+        .user-info:hover .user-avatar {
+            transform: scale(1.05);
+            transition: transform 0.3s ease;
+        }
+
+        .user-info:hover .comment-author {
+            color: #764ba2;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <div class="danmu-count">已有{{count}}条弹幕了</div>
+        <div class="down-arrow" onclick="scrollToNextSection()">
+            <i class="fas fa-chevron-down" aria-hidden="true" style="color:white;"></i>
+        </div>
+        <!-- 弹幕容器 -->
+        <div class="danmu-container" id="danmuContainer">
+            <div class="loading">弹幕加载中...</div>
+        </div>
+
+        <!-- 弹幕输入框 -->
+        <div class="danmu-input-container">
+            <div class="danmu-input-group">
+                <form id="dmForm">
+                    {% csrf_token %}
+                    {{ form.content }}
+                    <button type="button" class="danmu-send-btn" id="danmuSendBtn">发送弹幕</button>
+                </form>
+            </div>
+        </div>
+
+    </div>
+
+
+    <div class="container">
+        <div class="comments-section" style="margin-top: 65px;">
+            <h2 class="comments-title">用户留言区 | 共{{com_count}}条留言</h2>
+            
+            {% if not request.session.user_id %}
+            <div class="comment-form">
+                <p style="font-size: 18px;">请先<a href="/index/login/">登录</a>后再来留言~~~</p>
+            </div>
+            {% endif %}
+            
+            {% if request.session.user_id %}
+            <div class="comment-form">
+                <textarea class="comment-input" id="commentInput" placeholder="写下你的留言..."></textarea>
+                <button class="submit-btn" id="submitComment">发表留言</button>
+                <div style="clear: both;"></div>
+            </div>
+            {% endif %}
+            
+           <div class="comments-list" id="commentsList">
+               {% for comment in data %}
+                <div class="comment-item">
+                    <div class="comment-header">
+                        <div class="user-card">
+                             <img src="/media/avatars/avatar_{{ comment.user_id.id }}.jpg"
+                                    style="width: 35px; height: 35px; object-fit: cover; border-radius: 50%; margin-right: 5px;"
+                                    onerror="this.style.display='none'"
+                                    alt="头像" />
+                            <div class="user-info-card">
+                                <span class="username">{{ comment.user_id.username }}</span>
+                                {% if comment.user_id.role == 1 %}
+                                <span class="user-badge">#管理员</span>
+                                {% else %}
+                                <span class="user-badge">#用户</span>
+
+                                {% endif %}
+                            </div>
+                        </div>
+                        <span class="comment-time">{{ comment.date|date:"Y-m-d H:i" }}</span>
+                    </div>
+                    <div class="comment-content">
+                       {{ comment.content }}
+                    </div>
+                </div>
+                {% endfor %}
+                   <ul class="pagination">
+                       {{ page_string }}
+                   </ul>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block js %}
+<script>
+    function scrollToNextSection() {
+        console.log('点击了向下箭头');
+        const containers = document.querySelectorAll('.container');
+        console.log('找到的container数量:', containers.length);
+
+        if (containers.length > 1) {
+            const nextSection = containers[1];
+            console.log('找到的下一个section:', nextSection);
+
+            nextSection.scrollIntoView({
+                behavior: 'smooth',
+                block: 'start'
+            });
+        } else {
+            console.log('未找到下一个section，container数量:', containers.length);
+        }
+    }
+
+    $(document).ready(function() {
+
+        // 向下箭头点击事件
+        $('.down-arrow').on('click', function() {
+            scrollToNextSection();
+        });
+
+        // ========== 弹幕功能 ==========
+        const danmuContainer = $('#danmuContainer');
+        const danmuInput = $('#id_content');
+        const danmuSendBtn = $('#danmuSendBtn');
+        const csrfToken = $('[name=csrfmiddlewaretoken]').val();
+
+        // 弹幕颜色数组
+        const colors = [
+            '#FFFFFF', '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4',
+            '#FFEAA7', '#DDA0DD', '#98D8C8', '#F7DC6F', '#BB8FCE'
+        ];
+
+        // 字体大小数组
+        const fontSizes = [16, 18, 20, 22, 24];
+
+        // 存储活跃的弹幕信息
+        let activeDanmus = [];
+        // 弹幕轨道系统 - 将屏幕分为多个轨道
+        const tracks = Array(8).fill(0); // 8个轨道，记录每个轨道的结束时间
+
+        // 创建弹幕元素的独立函数
+        function createDanmuElement(text, userInfo) {
+            // 计算弹幕宽度和速度
+            const tempSpan = $('<span>').text(text).css({
+                'font-size': '18px',
+                'font-weight': 'bold',
+                'visibility': 'hidden',
+                'position': 'absolute'
+            }).appendTo('body');
+
+            const textWidth = tempSpan.width();
+            tempSpan.remove();
+
+            // 计算弹幕移动时间
+            const screenWidth = $(window).width();
+            const distance = screenWidth + textWidth;
+            const duration = (distance / screenWidth) * 15;
+
+            // 选择可用的轨道
+            let availableTrack = -1;
+            const currentTime = Date.now();
+
+            for (let i = 0; i < tracks.length; i++) {
+                if (currentTime >= tracks[i]) {
+                    availableTrack = i;
+                    break;
+                }
+            }
+
+            if (availableTrack === -1) {
+                availableTrack = tracks.indexOf(Math.min(...tracks));
+            }
+
+            // 计算轨道位置
+            const trackHeight = danmuContainer.height() / tracks.length;
+            const top = (availableTrack * trackHeight) + (trackHeight / 2);
+
+            // 更新轨道占用时间
+            tracks[availableTrack] = currentTime + (duration * 1000);
+
+            // 创建弹幕容器
+            const danmu = $('<div class="danmu"></div>');
+            
+            // 添加头像（如果用户有头像）
+            if (userInfo && userInfo.has_avatar && userInfo.user_id) {
+                const avatar = $('<img class="danmu-avatar">');
+                avatar.attr('src', `/media/avatars/avatar_${userInfo.user_id}.jpg?t=${new Date().getTime()}`);
+                avatar.attr('alt', userInfo.username);
+                avatar.on('error', function() {
+                    $(this).remove(); // 如果头像加载失败，移除头像
+                });
+                danmu.append(avatar);
+            }
+
+            // 添加文本内容
+            const textSpan = $('<span class="danmu-text"></span>').text(text);
+            danmu.append(textSpan);
+
+            // 设置样式
+            const color = colors[availableTrack % colors.length];
+            const fontSize = fontSizes[availableTrack % fontSizes.length];
+
+            danmu.css({
+                'top': top + 'px',
+                'animation-duration': duration + 's'
+            });
+
+            textSpan.css({
+                'color': color,
+                'font-size': fontSize + 'px'
+            });
+
+            // 添加到容器
+            danmuContainer.append(danmu);
+
+            // 存储弹幕信息
+            const danmuInfo = {
+                element: danmu[0],
+                track: availableTrack,
+                startTime: currentTime,
+                duration: duration * 1000
+            };
+            activeDanmus.push(danmuInfo);
+
+            // 动画结束后移除元素
+            setTimeout(() => {
+                danmu.remove();
+                activeDanmus = activeDanmus.filter(d => d.element !== danmu[0]);
+            }, duration * 1000);
+        }
+
+        // 发送弹幕函数
+        function sendDanmu(text, userInfo = null, isNew = false) {
+            if (!text.trim()) return;
+
+            // 如果是新弹幕，保存到数据库
+            if (isNew) {
+                $.ajax({
+                    url: '/send_danmu/',
+                    type: 'POST',
+                    dataType: 'json',
+                    headers: {
+                        'X-CSRFToken': csrfToken
+                    },
+                    data: JSON.stringify({
+                        'content': text
+                    }),
+                    contentType: 'application/json',
+                    success: function(data) {
+                        if (data.status) {
+                            console.log('弹幕保存成功:', data.content);
+                            danmuInput.val('');
+                            
+                            // 使用当前用户信息创建弹幕
+                            const currentUserInfo = {
+                                user_id: {{ request.session.user_id|default:"0" }},
+                                username: '{{ request.session.username|default:"游客" }}',
+                                has_avatar: true
+                            };
+                            createDanmuElement(text, currentUserInfo);
+                        } else {
+                            alert('发送失败: ' + data.error);
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('发送弹幕失败:', error);
+                        alert('发送失败，请检查网络连接');
+                    }
+                });
+            } else {
+                // 历史弹幕使用传入的用户信息
+                createDanmuElement(text, userInfo);
+            }
+        }
+
+        // 弹幕发送按钮点击事件
+        danmuSendBtn.on('click', function() {
+            const text = danmuInput.val().trim();
+            if (text) {
+                // 立即显示弹幕
+                const currentUserInfo = {
+                    user_id: {{ request.session.user_id|default:"0" }},
+                    username: '{{ request.session.username|default:"游客" }}',
+                    has_avatar: true
+                };
+                createDanmuElement(text, currentUserInfo);
+                
+                // 保存到数据库
+                $.ajax({
+                    url: '/send_danmu/',
+                    type: 'POST',
+                    dataType: 'json',
+                    headers: {
+                        'X-CSRFToken': csrfToken
+                    },
+                    data: JSON.stringify({
+                        'content': text
+                    }),
+                    contentType: 'application/json',
+                    success: function(data) {
+                        if (data.status) {
+                            danmuInput.val('');
+                        } else {
+                            console.error('弹幕保存失败:', data.error);
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('发送弹幕失败:', error);
+                    }
+                });
+            } else {
+                alert('请输入弹幕内容');
+            }
+        });
+
+        // 弹幕回车键发送
+        danmuInput.on('keypress', function(e) {
+            if (e.which === 13) {
+                e.preventDefault();
+                const text = danmuInput.val().trim();
+                if (text) {
+                    // 立即显示弹幕
+                    const currentUserInfo = {
+                        user_id: {{ request.session.user_id|default:"0" }},
+                        username: '{{ request.session.username|default:"游客" }}',
+                        has_avatar: true
+                    };
+                    createDanmuElement(text, currentUserInfo);
+                    
+                    // 保存到数据库
+                    $.ajax({
+                        url: '/send_danmu/',
+                        type: 'POST',
+                        dataType: 'json',
+                        headers: {
+                            'X-CSRFToken': csrfToken
+                        },
+                        data: JSON.stringify({
+                            'content': text
+                        }),
+                        contentType: 'application/json',
+                        success: function(data) {
+                            if (data.status) {
+                                danmuInput.val('');
+                            } else {
+                                console.error('弹幕保存失败:', data.error);
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            console.error('发送弹幕失败:', error);
+                        }
+                    });
+                }
+            }
+        });
+
+        // 从服务器加载历史弹幕
+        function loadHistoryDanmus() {
+            $.ajax({
+                url: '/get_danmus/',
+                type: 'GET',
+                dataType: 'json',
+                success: function(data) {
+                    if (data.status && data.danmus) {
+                        danmuContainer.find('.loading').remove();
+                        data.danmus.forEach((danmu, index) => {
+                            setTimeout(() => {
+                                createDanmuElement(danmu.content, {
+                                    user_id: danmu.user_id,
+                                    username: danmu.username,
+                                    has_avatar: danmu.has_avatar
+                                });
+                            }, index * 800);
+                        });
+                    }
+                },
+                error: function(xhr, status, error) {
+                    danmuContainer.find('.loading').text('加载弹幕失败,请先登陆后查看');
+                }
+            });
+        }
+
+        // 调整弹幕容器大小
+        function resizeDanmuContainer() {
+            danmuContainer.height($(window).height() - 250);
+        }
+
+        $(window).on('resize', resizeDanmuContainer);
+        resizeDanmuContainer();
+
+        // 页面加载后开始加载历史弹幕
+        setTimeout(loadHistoryDanmus, 1000);
+
+        // 弹幕循环播放
+        function startDanmuLoop() {
+            $.ajax({
+                url: '/get_danmus/',
+                type: 'GET',
+                dataType: 'json',
+                success: function(data) {
+                    if (data.status && data.danmus) {
+                        const danmusWithUserInfo = data.danmus.map(d => ({
+                            content: d.content,
+                            userInfo: {
+                                user_id: d.user_id,
+                                username: d.username,
+                                has_avatar: d.has_avatar
+                            }
+                        }));
+                        
+                        let index = 0;
+
+                        function playNextDanmu() {
+                            if (index >= danmusWithUserInfo.length) {
+                                index = 0;
+                            }
+
+                            const danmu = danmusWithUserInfo[index];
+                            createDanmuElement(danmu.content, danmu.userInfo);
+                            index++;
+
+                            // 随机延迟，避免过于密集
+                            setTimeout(playNextDanmu, Math.random() * 3000 + 2000);
+                        }
+
+                        // 延迟开始播放
+                        setTimeout(playNextDanmu, 5000);
+                    }
+                }
+            });
+        }
+
+        // 在页面加载后调用
+        setTimeout(startDanmuLoop, 2000);
+
+        $('#submitComment').off('click');
+        $('#commentInput').off('keypress');
+        $('.submit-btn').off('click');
+
+        $('#submitComment').on('click', function() {
+
+            const commentText = $('#commentInput').val().trim();
+
+            if (!commentText) {
+                alert('请输入留言内容');
+                return;
+            }
+
+            // 显示加载状态
+            const submitBtn = $(this);
+            const originalText = submitBtn.text();
+            submitBtn.text('发送中...').prop('disabled', true);
+
+            $.ajax({
+                url: '/send_comment/',
+                type: 'POST',
+                dataType: 'json',
+                headers: {
+                    'X-CSRFToken': $('[name=csrfmiddlewaretoken]').val()
+                },
+                data: JSON.stringify({
+                    'content': commentText
+                }),
+                contentType: 'application/json',
+                success: function(data) {
+                    console.log('服务器响应:', data);
+
+                    // 恢复按钮状态
+                    submitBtn.text(originalText).prop('disabled', false);
+
+                    if (data.status) {
+                        // 清空输入框
+                        $('#commentInput').val('');
+
+                        // 添加新留言到列表
+                        const newComment = `
+                            <div class="comment-item">
+                                <div class="comment-header">
+                                    <div class="user-card">
+                                        <img src="/media/avatars/avatar_{{request.session.user_id}}.jpg"
+                                            style="width: 35px; height: 35px; object-fit: cover; border-radius: 50%; margin-right: 5px;"
+                                            onerror="this.style.display='none'"
+                                            alt="头像" />
+                                        <div class="user-info-card">
+                                            <span class="username">${data.comment.username}</span>
+                                            ${data.comment.role === 1 ? 
+                                                '<span class="user-badge">#管理员</span>' : 
+                                                '<span class="user-badge">#用户</span>'
+                                            }
+                                        </div>
+                                    </div>
+                                    <span class="comment-time">${data.comment.date}</span>
+                                </div>
+                                <div class="comment-content">
+                                    ${data.comment.content}
+                                </div>
+                            </div>
+                        `;
+
+                        // 移除"暂无留言"提示（如果存在）
+                        $('.no-comments').remove();
+
+                        // 添加新留言到列表顶部
+                        $('#commentsList').prepend(newComment);
+
+                        // 显示成功消息
+                        showMessage('留言发表成功！', 'success');
+                    } else {
+                        showMessage('发表失败: ' + data.error, 'error');
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('发表留言失败:', error);
+                    console.error('响应状态:', xhr.status);
+                    console.error('响应文本:', xhr.responseText);
+
+                    // 恢复按钮状态
+                    submitBtn.text(originalText).prop('disabled', false);
+
+                    showMessage('发表失败，请检查网络连接', 'error');
+                }
+            });
+        });
+
+        // 留言回车键提交
+        $('#commentInput').on('keypress', function(e) {
+            if (e.which === 13 && !e.shiftKey) {
+                e.preventDefault();
+                $('#submitComment').click();
+            }
+        });
+
+        // 显示消息的函数
+        function showMessage(message, type) {
+            // 移除现有的消息
+            $('.custom-message').remove();
+
+            const messageClass = type === 'success' ? 'message-success' : 'message-error';
+            const messageHtml = `
+                <div class="custom-message ${messageClass}">
+                    ${message}
+                </div>
+            `;
+
+            $('body').append(messageHtml);
+
+            // 3秒后自动消失
+            setTimeout(() => {
+                $('.custom-message').fadeOut(300, function() {
+                    $(this).remove();
+                });
+            }, 3000);
+        }
+
+        // 添加消息样式
+        if (!$('#message-styles').length) {
+            $('head').append(`
+                <style id="message-styles">
+                    .custom-message {
+                        position: fixed;
+                        top: 20px;
+                        right: 20px;
+                        padding: 15px 20px;
+                        border-radius: 8px;
+                        color: white;
+                        font-weight: bold;
+                        z-index: 10000;
+                        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+                        animation: slideIn 0.3s ease;
+                    }
+                    .message-success {
+                        background: linear-gradient(135deg, #4CAF50, #45a049);
+                    }
+                    .message-error {
+                        background: linear-gradient(135deg, #f44336, #d32f2f);
+                    }
+                    @keyframes slideIn {
+                        from { transform: translateX(100%); opacity: 0; }
+                        to { transform: translateX(0); opacity: 1; }
+                    }
+                </style>
+            `);
+        }
+
+        console.log('所有功能初始化完成');
+    });
+
+    // 修改消息显示函数
+    function showMessage(message, type) {
+        // 移除现有的消息
+        $('.custom-message').remove();
+
+        const messageClass = type === 'success' ? 'message-success' : 'message-error';
+        const messageHtml = `
+            <div class="custom-message ${messageClass}">
+                ${message}
+            </div>
+        `;
+
+        $('body').append(messageHtml);
+
+        // 3秒后自动消失
+        setTimeout(() => {
+            $('.custom-message').fadeOut(300, function() {
+                $(this).remove();
+            });
+        }, 3000);
+    }
+
+    // 添加页面卸载前的清理
+    $(window).on('beforeunload', function() {
+        console.log('页面卸载，清理资源...');
+    });
+</script>
+{% endblock %}

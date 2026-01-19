@@ -1,0 +1,841 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>登录&注册 - Fool | Blog</title>
+    <link rel="stylesheet" href="{% static 'plugins/bootstrap/css/bootstrap.css' %}">
+    <link rel="stylesheet" href="{% static 'plugins/font-awesome/css/font-awesome.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/login.css' %}">
+    <link rel="icon" type="image/x-icon" href="{% static 'img/icon.png' %}">
+
+    <style>
+
+           /* 邮箱验证码相关样式 */
+        .email-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        .email-input {
+            flex: 1;
+        }
+
+        .btn-send-code {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            white-space: nowrap;
+            min-width: 120px;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-send-code:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+            background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
+        }
+
+        .btn-send-code:active:not(:disabled) {
+            transform: translateY(0);
+            box-shadow: 0 2px 10px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-send-code:disabled {
+            background: linear-gradient(135deg, #bdc3c7 0%, #95a5a6 100%);
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: 0 2px 5px rgba(189, 195, 199, 0.3);
+        }
+
+        /* 倒计时样式 */
+        .btn-send-code.countdown {
+            background: linear-gradient(135deg, #95a5a6 0%, #7f8c8d 100%);
+            color: #ecf0f1;
+        }
+
+        /* 加载动画 */
+        .btn-send-code.loading {
+            color: transparent;
+        }
+
+        .btn-send-code.loading::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            top: 50%;
+            left: 50%;
+            margin-left: -10px;
+            margin-top: -10px;
+            border: 2px solid #ffffff;
+            border-radius: 50%;
+            border-top: 2px solid transparent;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* 成功状态 */
+        .btn-send-code.success {
+            background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+            box-shadow: 0 4px 15px rgba(46, 204, 113, 0.3);
+        }
+
+        /* 错误状态 */
+        .btn-send-code.error {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            box-shadow: 0 4px 15px rgba(231, 76, 60, 0.3);
+        }
+
+        /* 脉冲动画 */
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(102, 126, 234, 0.7);
+            }
+            70% {
+                box-shadow: 0 0 0 10px rgba(102, 126, 234, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(102, 126, 234, 0);
+            }
+        }
+
+        .btn-send-code.pulse {
+            animation: pulse 2s infinite;
+        }
+        .countdown {
+            background: #6c757d !important;
+        }
+    </style>
+</head>
+<body>
+    <!-- 视频背景 -->
+    <div class="video-container">
+        <video id="video-background" autoplay muted loop playsinline>
+            <source src="{% static 'video/login.mp4' %}" type="video/mp4">
+        </video>
+        <div class="overlay"></div>
+    </div>
+
+    <!-- 返回首页按钮 -->
+    <div class="back-home">
+        <a href="/" class="btn btn-home" style="font-size: 1.5rem">
+            <i class="fa fa-home"></i> 返回首页
+        </a>
+    </div>
+
+    <!-- 登录/注册容器 -->
+    <div class="login-container">
+        <div class="login-box">
+            <!-- 登录表单 -->
+            <div id="loginFormContainer">
+                <div class="login-header">
+                    <h2>欢迎回来</h2>
+                    <p>登录您的账户</p>
+                </div>
+
+                <form id="loginForm" novalidate>
+                    {% csrf_token %}
+                    <!-- 添加隐藏字段保存返回URL -->
+                    <input type="hidden" name="next" value="{{ request.GET.next }}">
+
+                    <div class="form-group">
+                        <label class="form-label">用户名</label>
+                        <input type="text" name="username" class="form-control" placeholder="请输入用户名" required>
+                        <span class="error-message" id="usernameError"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">密码</label>
+                        <input type="password" name="password" class="form-control" placeholder="请输入密码" required autocomplete="current-password">
+                        <span class="error-message" id="passwordError"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">验证码</label>
+                        <div class="code-group">
+                            <input type="text" name="code" class="form-control code-input" placeholder="请输入验证码" required>
+                            <div class="code-image">
+                                <a onclick="refreshImage('login')" href="#">
+                                    <img id="loginImageCode" src="/image_code/" alt="验证码">
+                                </a>
+                            </div>
+                        </div>
+                        <span class="error-message" id="codeError"></span>
+                    </div>
+
+                    <div class="form-check">
+                        <input type="checkbox" class="form-check-input" id="rememberMe" name="rememberMe">
+                        <label class="form-check-label" for="rememberMe">记住我</label>
+                    </div>
+
+                    <button type="submit" class="btn btn-login">登录</button>
+                </form>
+
+                <div class="form-switch">
+                    <p>还没有账号？ <a class="switch-link" style="font-size: 1.5rem" onclick="showRegister()">立即注册</a></p>
+                </div>
+            </div>
+
+            <!-- 注册表单 -->
+            <div id="registerFormContainer" style="display: none;">
+                <div class="login-header">
+                    <h2>创建账户</h2>
+                    <p>注册新用户</p>
+                </div>
+
+                <form id="registerForm" novalidate>
+                    {% csrf_token %}
+                    <!-- 注册也保存返回URL -->
+                    <input type="hidden" name="next" value="{{ request.GET.next }}">
+
+                    <div class="form-group">
+                        <label class="form-label">用户名</label>
+                        <input type="text" name="username" class="form-control" placeholder="请输入用户名" required>
+                        <span class="error-message" id="regUsernameError"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">密码</label>
+                        <input type="password" name="password" class="form-control" placeholder="请输入密码" required autocomplete="new-password">
+                        <span class="error-message" id="regPasswordError"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">确认密码</label>
+                        <input type="password" name="con_password" class="form-control" placeholder="请再次输入密码" required autocomplete="new-password">
+                        <span class="error-message" id="regConPasswordError"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">邮箱</label>
+                        <div class="email-group">
+                            <input type="email" name="email" class="form-control email-input" placeholder="请输入您的邮箱" required>
+                            <button type="button" class="btn btn-send-code" id="sendCodeBtn" onclick="sendEmailCode()">发送验证码</button>
+                        </div>
+                        <span class="error-message" id="regEmailError"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">邮箱验证码</label>
+                        <input type="text" name="email_code" class="form-control" placeholder="请输入邮箱验证码" required>
+                        <span class="error-message" id="regEmailCodeError"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">验证码</label>
+                        <div class="code-group">
+                            <input type="text" name="code" class="form-control code-input" placeholder="请输入验证码" required>
+                            <div class="code-image">
+                                <a onclick="refreshImage('register')" href="#">
+                                    <img id="registerImageCode" src="/image_code/" alt="验证码">
+                                </a>
+                            </div>
+                        </div>
+                        <span class="error-message" id="regCodeError"></span>
+                    </div>
+
+                    <button type="submit" class="btn btn-register">注册</button>
+                </form>
+
+                <div class="form-switch">
+                    <p>已有账号？ <a class="switch-link" style="font-size: 1.5rem" onclick="showLogin()">立即登录</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="{% static 'js/jquerymin.js' %}"></script>
+    <script>
+// 显示注册表单
+function showRegister() {
+    document.getElementById('loginFormContainer').style.display = 'none';
+    document.getElementById('registerFormContainer').style.display = 'block';
+    // 清除登录表单的错误信息
+    clearErrors('login');
+}
+
+// 显示登录表单
+function showLogin() {
+    document.getElementById('registerFormContainer').style.display = 'none';
+    document.getElementById('loginFormContainer').style.display = 'block';
+    // 清除注册表单的错误信息
+    clearErrors('register');
+}
+
+// 刷新验证码
+function refreshImage(formType) {
+    const timestamp = new Date().getTime();
+    const imgElement = document.getElementById(formType + 'ImageCode');
+    imgElement.src = '/image_code/?' + timestamp;
+}
+
+// 清除错误信息
+function clearErrors(formType) {
+    let prefix = '';
+    if (formType === 'register') {
+        prefix = 'reg';
+    }
+
+    const errorSelectors = [
+        'UsernameError', 'PasswordError', 'ConPasswordError', 'CodeError',
+        'EmailError', 'EmailCodeError'  // 新增邮箱相关错误
+    ];
+
+    errorSelectors.forEach(selector => {
+        const errorElement = document.getElementById(prefix + selector);
+        if (errorElement) {
+            errorElement.textContent = '';
+            errorElement.classList.remove('show'); // 隐藏错误信息
+        }
+    });
+
+    // 清除输入框的红色边框
+    const formId = formType ? formType + 'Form' : 'loginForm';
+    const inputs = document.querySelectorAll(`#${formId} .form-control`);
+    inputs.forEach(input => {
+        input.classList.remove('error');
+        input.style.borderColor = '#e9ecef';
+    });
+}
+
+// 显示错误信息 - 修复版
+function showErrors(formType, errors) {
+    console.log('显示错误:', formType, errors); // 调试用
+
+    clearErrors(formType);
+
+    if (!errors) return;
+
+    for (const field in errors) {
+        let errorElementId;
+        const inputName = field;
+
+        // 根据字段名映射到对应的错误元素ID
+        if (formType === 'reg') {
+            // 注册表单的错误元素ID
+            switch(field) {
+                case 'username':
+                    errorElementId = 'regUsernameError';
+                    break;
+                case 'password':
+                    errorElementId = 'regPasswordError';
+                    break;
+                case 'con_password':
+                    errorElementId = 'regConPasswordError';
+                    break;
+                case 'code':
+                    errorElementId = 'regCodeError';
+                    break;
+                case 'email':
+                    errorElementId = 'regEmailError';
+                    break;
+                case 'email_code':
+                    errorElementId = 'regEmailCodeError';
+                    break;
+                default:
+                    errorElementId = 'reg' + field.charAt(0).toUpperCase() + field.slice(1) + 'Error';
+            }
+        } else {
+            // 登录表单的错误元素ID
+            switch(field) {
+                case 'username':
+                    errorElementId = 'usernameError';
+                    break;
+                case 'password':
+                    errorElementId = 'passwordError';
+                    break;
+                case 'code':
+                    errorElementId = 'codeError';
+                    break;
+                default:
+                    errorElementId = field + 'Error';
+            }
+        }
+
+        const errorElement = document.getElementById(errorElementId);
+        const inputElement = document.querySelector(`#${formType ? formType + 'Form' : 'loginForm'} [name="${inputName}"]`);
+
+        console.log('字段:', field, '错误元素:', errorElementId, '输入元素:', inputElement); // 调试用
+
+        if (errorElement && errors[field].length > 0) {
+            errorElement.textContent = errors[field][0];
+            errorElement.classList.add('show'); // 显示错误信息
+        }
+
+        if (inputElement) {
+            inputElement.classList.add('error');
+            inputElement.style.borderColor = '#e74c3c';
+        }
+    }
+
+    // 处理全局错误（如__all__）
+    if (errors.__all__ && errors.__all__.length > 0) {
+        showMessage('error', errors.__all__[0]);
+    }
+}
+
+// 获取Cookie的函数
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+// 发送邮箱验证码
+function sendEmailCode() {
+    console.log('=== 开始发送邮箱验证码 ===');
+
+    const emailInput = document.querySelector('#registerForm [name="email"]');
+    const email = emailInput.value.trim();
+    const sendBtn = document.getElementById('sendCodeBtn');
+    const emailErrorElement = document.getElementById('regEmailError');
+
+    console.log('邮箱输入值:', email);
+
+    // 清除之前的错误信息
+    if (emailErrorElement) {
+        emailErrorElement.textContent = '';
+        emailErrorElement.classList.remove('show');
+        emailInput.classList.remove('error');
+        emailInput.style.borderColor = '#e9ecef';
+    }
+
+    // 邮箱验证
+    const emailRegex =  /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    if (!email) {
+        console.log('邮箱为空');
+        if (emailErrorElement) {
+            emailErrorElement.textContent = '请输入邮箱地址';
+            emailErrorElement.classList.add('show');
+            emailInput.classList.add('error');
+            emailInput.style.borderColor = '#e74c3c';
+        }
+        emailInput.focus();
+        return;
+    }
+    if (!emailRegex.test(email)) {
+        console.log('邮箱格式错误');
+        if (emailErrorElement) {
+            emailErrorElement.textContent = '请输入有效的邮箱';
+            emailErrorElement.classList.add('show');
+            emailInput.classList.add('error');
+            emailInput.style.borderColor = '#e74c3c';
+        }
+        emailInput.focus();
+        return;
+    }
+
+    // 禁用按钮，防止重复点击
+    sendBtn.disabled = true;
+    sendBtn.textContent = '发送中...';
+
+    console.log('开始发送AJAX请求到 /send_email_code/');
+
+    // 发送AJAX请求
+    fetch('/send_email_code/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken'),
+            'X-Requested-With': 'XMLHttpRequest'
+        },
+        body: JSON.stringify({
+            email: email
+        })
+    })
+    .then(response => {
+        console.log('响应状态:', response.status, response.statusText);
+        console.log('响应URL:', response.url);
+        console.log('响应是否重定向:', response.redirected);
+
+        // 如果是重定向，直接显示错误
+        if (response.redirected) {
+            console.error('请求被重定向到:', response.url);
+            throw new Error('请求被重定向，请检查服务器配置');
+        }
+
+        if (!response.ok) {
+            throw new Error(`HTTP错误: ${response.status}`);
+        }
+
+        return response.json();
+    })
+    .then(data => {
+        console.log('收到响应数据:', data);
+        if (data.status) {
+            showMessage('success', data.message || '验证码发送成功');
+            startCountdown();
+        } else {
+            // 显示具体的错误信息到邮箱输入框下方
+            if (emailErrorElement) {
+                emailErrorElement.textContent = data.message || '发送失败，请重试';
+                emailErrorElement.classList.add('show');
+                emailInput.classList.add('error');
+                emailInput.style.borderColor = '#e74c3c';
+            } else {
+                showMessage('error', data.message || '发送失败，请重试');
+            }
+            sendBtn.disabled = false;
+            sendBtn.textContent = '发送验证码';
+        }
+    })
+    .catch(error => {
+        console.error('发送验证码失败:', error);
+        if (emailErrorElement) {
+            emailErrorElement.textContent = '请求失败: ' + error.message;
+            emailErrorElement.classList.add('show');
+            emailInput.classList.add('error');
+            emailInput.style.borderColor = '#e74c3c';
+        } else {
+            showMessage('error', '请求失败: ' + error.message);
+        }
+        sendBtn.disabled = false;
+        sendBtn.textContent = '发送验证码';
+    });
+}
+
+// 倒计时功能
+function startCountdown() {
+    const sendBtn = document.getElementById('sendCodeBtn');
+    let countdown = 60;
+    
+    sendBtn.disabled = true;
+    sendBtn.classList.add('countdown');
+    
+    const timer = setInterval(() => {
+        sendBtn.textContent = `重新发送(${countdown})`;
+        countdown--;
+        
+        if (countdown < 0) {
+            clearInterval(timer);
+            sendBtn.disabled = false;
+            sendBtn.textContent = '发送验证码';
+            sendBtn.classList.remove('countdown');
+        }
+    }, 1000);
+}
+
+// 登录表单提交
+document.getElementById('loginForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    const formData = new FormData(this);
+    const submitBtn = this.querySelector('button[type="submit"]');
+
+    // 禁用提交按钮防止重复提交
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> 登录中...';
+
+    fetch('/login/', {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'X-CSRFToken': formData.get('csrfmiddlewaretoken')
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status) {
+            // 登录成功
+            showMessage('success', data.message);
+            setTimeout(() => {
+                window.location.href = data.next || '/';
+            }, 0);
+        } else {
+            // 登录失败，显示错误信息
+            if (data.error) {
+                showErrors('', data.error);
+            } else {
+                showMessage('error', '登录失败，请重试');
+            }
+            // 刷新验证码
+            refreshImage('login');
+        }
+    })
+    .catch(error => {
+        console.error('登录请求失败:', error);
+        showMessage('error', '网络错误，请重试');
+    })
+    .finally(() => {
+        // 恢复提交按钮
+        submitBtn.disabled = false;
+        submitBtn.textContent = '登录';
+    });
+});
+
+// 注册表单提交
+document.getElementById('registerForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    const formData = new FormData(this);
+    const submitBtn = this.querySelector('button[type="submit"]');
+
+    // 禁用提交按钮防止重复提交
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> 注册中...';
+
+    fetch('/register/', {  // 确保这个URL与你的后端路由匹配
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'X-CSRFToken': formData.get('csrfmiddlewaretoken')
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log('注册响应:', data);
+        if (data.status) {
+            showMessage('success', data.message);
+            setTimeout(() => {
+                window.location.href = data.next || '/';
+            }, 1500);
+        } else {
+            // 注册失败，恢复用户输入的数据
+            if (data.form_data) {
+                // 保留邮箱验证码
+                if (data.form_data.email_code) {
+                    document.querySelector('#registerForm [name="email_code"]').value = data.form_data.email_code;
+                }
+                // 保留邮箱
+                if (data.form_data.email) {
+                    document.querySelector('#registerForm [name="email"]').value = data.form_data.email;
+                }
+                // 保留用户名
+                if (data.form_data.username) {
+                    document.querySelector('#registerForm [name="username"]').value = data.form_data.username;
+                }
+            }
+            
+            // 显示错误信息
+            if (data.error) {
+                showErrors('reg', data.error);
+            } else {
+                showMessage('error', '注册失败，请重试');
+            }
+            // 刷新图形验证码
+            refreshImage('register');
+        }
+    })
+    .catch(error => {
+        console.error('注册请求失败:', error);
+        showMessage('error', '网络错误，请重试');
+    })
+    .finally(() => {
+        // 恢复提交按钮
+        submitBtn.disabled = false;
+        submitBtn.textContent = '注册';
+    });
+});
+// 显示消息提示
+function showMessage(type, message) {
+    // 移除现有的消息提示
+    const existingMessage = document.querySelector('.message-toast');
+    if (existingMessage) {
+        existingMessage.remove();
+    }
+
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `message-toast message-${type}`;
+    messageDiv.innerHTML = `
+        <div style="position: fixed; top: 20px; right: 20px; z-index: 9999; min-width: 300px;">
+            <div class="alert alert-${type === 'success' ? 'success' : 'danger'} alert-dismissible fade show" role="alert">
+                <strong>${type === 'success' ? '成功' : '错误'}!</strong> ${message}
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+        </div>
+    `;
+
+    document.body.appendChild(messageDiv);
+
+    // 3秒后自动消失
+    setTimeout(() => {
+        if (messageDiv.parentNode) {
+            messageDiv.parentNode.removeChild(messageDiv);
+        }
+    }, 3000);
+}
+
+// 输入框获取焦点时清除错误状态
+document.querySelectorAll('.form-control').forEach(input => {
+    input.addEventListener('focus', function() {
+        this.classList.remove('error');
+        this.style.borderColor = '#e9ecef';
+        // 找到对应的错误信息元素并清除
+        const formGroup = this.closest('.form-group');
+        if (formGroup) {
+            const errorElement = formGroup.querySelector('.error-message');
+            if (errorElement) {
+                errorElement.textContent = '';
+                errorElement.classList.remove('show'); // 隐藏错误信息
+            }
+        }
+    });
+});
+// 用户名实时验证
+document.querySelector('#registerForm [name="username"]')?.addEventListener('blur', function() {
+    const username = this.value.trim();
+    const errorElement = document.getElementById('regUsernameError');
+
+    if (username && username.length < 8) {
+        if (errorElement) {
+            errorElement.textContent = '用户名至少需要8位字符';
+            errorElement.classList.add('show');
+            this.classList.add('error');
+            this.style.borderColor = '#e74c3c';
+        }
+    } else if (username) {
+        // 清除错误状态
+        if (errorElement) {
+            errorElement.textContent = '';
+            errorElement.classList.remove('show');
+            this.classList.remove('error');
+            this.style.borderColor = '#28a745';
+        }
+    }
+});
+
+// 密码实时验证
+document.querySelector('#registerForm [name="password"]')?.addEventListener('blur', function() {
+    const password = this.value;
+    const errorElement = document.getElementById('regPasswordError');
+    const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/;
+
+    if (password && !passwordRegex.test(password)) {
+        if (errorElement) {
+            errorElement.textContent = '密码至少8位，必须包含字母和数字';
+            errorElement.classList.add('show');
+            this.classList.add('error');
+            this.style.borderColor = '#e74c3c';
+        }
+    } else if (password) {
+        // 清除错误状态
+        if (errorElement) {
+            errorElement.textContent = '';
+            errorElement.classList.remove('show');
+            this.classList.remove('error');
+            this.style.borderColor = '#28a745';
+        }
+    }
+});
+
+// 确认密码实时验证
+document.querySelector('#registerForm [name="con_password"]')?.addEventListener('blur', function() {
+    const confirmPassword = this.value;
+    const password = document.querySelector('#registerForm [name="password"]').value;
+    const errorElement = document.getElementById('regConPasswordError');
+
+    if (confirmPassword && password !== confirmPassword) {
+        if (errorElement) {
+            errorElement.textContent = '两次输入的密码不一致';
+            errorElement.classList.add('show');
+            this.classList.add('error');
+            this.style.borderColor = '#e74c3c';
+        }
+    } else if (confirmPassword) {
+        // 清除错误状态
+        if (errorElement) {
+            errorElement.textContent = '';
+            errorElement.classList.remove('show');
+            this.classList.remove('error');
+            this.style.borderColor = '#28a745';
+        }
+    }
+});
+// 邮箱输入框实时验证
+document.querySelector('#registerForm [name="email"]')?.addEventListener('blur', function() {
+    const email = this.value.trim();
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    
+    if (email && !emailRegex.test(email)) {
+        const errorElement = document.getElementById('regEmailError');
+        if (errorElement) {
+            errorElement.textContent = '请输入有效的邮箱';
+            errorElement.classList.add('show');
+            this.classList.add('error');
+            this.style.borderColor = '#e74c3c';
+        }
+    }
+});
+
+// 视频背景处理
+document.addEventListener('DOMContentLoaded', function() {
+    const video = document.getElementById('video-background');
+    
+    if (video) {
+        video.addEventListener('ended', function() {
+            video.currentTime = 0;
+            video.play();
+        });
+        
+        video.addEventListener('error', function() {
+            console.log('视频加载失败，显示备用背景');
+            document.querySelector('.video-container').style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+        });
+    }
+
+    // 初始化验证码
+    refreshImage('login');
+    refreshImage('register');
+    
+    // 检查URL参数，如果有注册参数则显示注册表单
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('action') === 'register') {
+        showRegister();
+    }
+
+    // 邮箱输入框回车键发送验证码
+    document.querySelector('#registerForm [name="email"]')?.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            sendEmailCode();
+        }
+    });
+});
+
+// 点击验证码图片刷新
+document.querySelectorAll('.code-image a').forEach(link => {
+    link.addEventListener('click', function(e) {
+        e.preventDefault();
+        const formType = this.closest('form').id.replace('Form', '');
+        refreshImage(formType);
+    });
+});
+
+// 邮箱验证码输入框回车键提交表单
+document.querySelector('#registerForm [name="email_code"]')?.addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        e.preventDefault();
+        document.getElementById('registerForm').dispatchEvent(new Event('submit'));
+    }
+});
+
+    </script>
+</body>
+</html>

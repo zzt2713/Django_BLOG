@@ -1,0 +1,606 @@
+{% extends 'muban.html' %}
+{% load static %}
+{% block css %}
+    <title>相册</title>
+    <style>
+        /* 页面背景 */
+        body {
+            background: url('{% static 'img/111.jpg' %}') no-repeat center center fixed;
+            background-size: 100% 100%;
+            min-height: 100vh;
+            margin: 0;
+            padding: 0;
+        }
+
+        @keyframes gradientShift {
+            0% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+
+        /* 相册页面特定样式 */
+        .gallery-container {
+            padding: 100px 20px 50px;
+            max-width: 1200px;
+            margin: 0 auto;
+            min-height: 100vh;
+        }
+
+        .gallery-title {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+            font-size: 2.5rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            position: relative;
+            padding-bottom: 15px;
+        }
+
+        .gallery-title:after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 3px;
+            background: linear-gradient(to right, transparent, orange, transparent);
+        }
+
+        .gallery-description {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 40px;
+            font-size: 1.8rem;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+            line-height: 1.6;
+        }
+
+        /* 添加图片按钮样式 */
+        .add-photo-btn-container {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .add-photo-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .add-photo-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+            background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+        }
+
+        .add-photo-btn:active {
+            transform: translateY(-1px);
+        }
+
+        .add-photo-btn i {
+            font-size: 1.2rem;
+        }
+
+        /* 瀑布流布局 */
+        .masonry-grid {
+            column-count: 4;
+            column-gap: 15px;
+        }
+
+        .masonry-item {
+            break-inside: avoid;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+            position: relative;
+            background: white;
+        }
+
+        .masonry-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+        }
+
+        .masonry-img {
+            width: 100%;
+            display: block;
+            transition: transform 0.5s ease;
+        }
+
+        .masonry-item:hover .masonry-img {
+            transform: scale(1.05);
+        }
+
+        .image-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
+            color: white;
+            padding: 20px 15px 10px;
+            transform: translateY(100%);
+            transition: transform 0.3s ease;
+        }
+
+        .masonry-item:hover .image-overlay {
+            transform: translateY(0);
+        }
+
+        .image-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+            font-size: 1.1rem;
+        }
+
+        .image-date {
+            font-size: 0.85rem;
+            opacity: 0.8;
+        }
+        /* 修复模态框样式 */
+.modal {
+    overflow-y: auto; /* 允许模态框滚动 */
+}
+
+.modal-dialog {
+    margin: 2% auto; /* 减少顶部间距 */
+    max-height: 90vh; /* 限制最大高度 */
+}
+
+.modal-content {
+    max-height: 90vh; /* 限制内容高度 */
+    overflow: hidden; /* 隐藏溢出 */
+}
+
+.modal-body {
+    max-height: calc(90vh - 120px); /* 计算合适的高度 */
+    overflow-y: auto; /* 允许内容滚动 */
+    padding: 20px;
+}
+
+/* 确保图片在模态框中正确显示 */
+.modal-image {
+    max-width: 100%;
+    max-height: 400px; /* 限制图片最大高度 */
+    object-fit: contain; /* 保持图片比例 */
+    display: block;
+    margin: 0 auto;
+}
+        /* 模态框样式 */
+        .modal-content {
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-header {
+            background: linear-gradient(to right, #83a9f8, #b0b9ff);
+            color: white;
+            border-bottom: none;
+        }
+
+        .modal-header .close {
+            color: white;
+            opacity: 0.8;
+        }
+
+        .modal-header .close:hover {
+            opacity: 1;
+        }
+
+        .modal-image {
+            width: 100%;
+            border-radius: 0;
+        }
+
+        .image-modal-title {
+            font-weight: bold;
+            margin-top: 15px;
+            color: #213562;
+        }
+
+        .image-modal-description {
+            color: #213562;
+            margin-top: 10px;
+            line-height: 1.5;
+        }
+
+        /* 添加图片的模态框样式 */
+        .upload-modal .modal-header {
+            background: linear-gradient(to right, #667eea, #764ba2);
+        }
+
+        .upload-area {
+            border: 2px dashed #ccc;
+            border-radius: 10px;
+            padding: 40px 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            margin-bottom: 20px;
+        }
+
+        .upload-area:hover {
+            border-color: #667eea;
+            background-color: #f8f9fa;
+        }
+
+        .upload-area i {
+            font-size: 3rem;
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 992px) {
+            .masonry-grid {
+                column-count: 3;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .masonry-grid {
+                column-count: 2;
+            }
+
+            .gallery-title {
+                font-size: 2rem;
+            }
+
+            .add-photo-btn {
+                padding: 10px 25px;
+                font-size: 1rem;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .masonry-grid {
+                column-count: 1;
+            }
+
+            .gallery-container {
+                padding: 80px 15px 30px;
+            }
+
+            .add-photo-btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <div class="gallery-container">
+        <h1 class="gallery-title">我的相册</h1>
+        <p class="gallery-description">
+            记录生活中的美好瞬间,分享一些好看的图片~</p>
+
+        <!-- 添加图片按钮 -->
+        {% if request.session.role == 1 %}
+
+        <div class="add-photo-btn-container">
+            <button class="add-photo-btn" data-toggle="modal" data-target="#uploadModal">
+                <i>+</i> 添加图片
+            </button>
+        </div>
+        {% endif %}
+        <div class="masonry-grid">
+
+            {% for i in pictures %}
+                <div class="masonry-item" data-toggle="modal" data-target="#imageModal{{ i.id }}">
+                    <img src="/{{ i.path }}" alt="{{ i.title }}" class="masonry-img">
+                    <div class="image-overlay">
+                        <div class="image-title">{{ i.title }}</div>
+                        <div class="image-date">{{ i.date|date:"Y年m月d日" }}</div>
+                    </div>
+                </div>
+            {% endfor %}
+
+        </div>
+        <ul class="pagination">
+            {{ page_string }}
+        </ul>
+    </div>
+
+    <!-- 图片模态框 -->
+    <!-- 模态框1 -->
+    {% for i in pictures %}
+    <div class="modal fade" id="imageModal{{ i.id }}" tabindex="-1" role="dialog" aria-labelledby="imageModalLabel{{ i.id }}"
+         aria-hidden="true" style="margin-top: 5%" >
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                     <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                            aria-hidden="true">&times;</span></button>
+
+                    <h4 class="modal-title" id="imageModalLabel1">{{ i.title }}</h4>
+                </div>
+                <div class="modal-body">
+                    <img src="/{{ i.path }}" alt="{{ i.title }}" class="modal-image">
+                    <h5 class="image-modal-title">{{ i.description }}</h5>
+                    <p class="image-modal-description" style="float:right">
+                        {{ i.date|date:"Y年m月d日" }}</p>
+                    {% if request.session.role == 1 %}
+                    <button id="delte_pic" uid = "{{ i.id }}" class="btn btn-danger" type="button" >删 除</button>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+
+    <!-- 添加图片模态框 -->
+    <div class="modal fade upload-modal" id="uploadModal" tabindex="-1" role="dialog" aria-labelledby="uploadModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    <h4 class="modal-title" id="uploadModalLabel">添加新图片</h4>
+                </div>
+                <div class="modal-body">
+                    <form id="uploadForm">
+                            {% csrf_token %}
+
+                        <!-- 上传区域 -->
+                        <div class="upload-area">
+                            <label for="imageUpload"
+                                   style="display: block; cursor: pointer; padding: 40px 20px; margin: 0; text-align: center;">
+                                <i>📁</i>
+                                <h5>点击或拖拽图片到这里</h5>
+                                <p class="text-muted">支持 JPG, PNG, GIF 格式，最大 10MB</p>
+                            </label>
+                            <input type="file" id="imageUpload" accept="image/*" style="display: none;">
+                        </div>
+
+                        <!-- 图片预览 -->
+                        <div id="imagePreview" style="display: none; text-align: center; margin-bottom: 20px;">
+                            <img id="previewImg" src="" alt="预览图" style="max-width: 100%; max-height: 300px; border-radius: 8px;">
+                        </div>
+
+                        <!-- 表单字段 -->
+                        <div class="form-group">
+                            <label for="imageTitle">图片标题</label>
+                            <input type="text" class="form-control" id="imageTitle" placeholder="请输入图片标题">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="imageDescription">图片描述</label>
+                            <textarea class="form-control" id="imageDescription" rows="3" placeholder="请输入图片描述..."></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="imageDate">拍摄日期</label>
+                            <input type="date" class="form-control" id="imageDate">
+                            <p style="font-size: 12px;color: red;">chrome以外浏览器可能日期有BUG，点击右侧小日历选择即可</p>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary" id="saveImageBtn">保存图片</button>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+  {% block js %}
+    <script>
+        $(function() {
+            delete_picture();
+        })
+
+        // 图片删除
+        function delete_picture() {
+            $('#delte_pic').on('click', function(){
+                var nid = $(this).attr('uid')
+                $.ajax({
+                    url:"/delete_pic/",
+                    type: "GET",
+                    data:{
+                        'nid': nid
+                    },
+                    dataType:"json",
+                    success:function(data){
+                        if(data.status){
+                            alert("删除成功");
+                            //刷新页面
+                            location.reload();
+                        }
+                    }
+                })
+            })
+        }
+
+        $(document).ready(function () {
+            // 图片加载完成后重新排列瀑布流
+            $('.masonry-img').on('load', function () {
+                setTimeout(function () {
+                    $('.masonry-grid').css('column-count', '4');
+                }, 100);
+            });
+
+            // 点击图片时显示模态框
+            $('.masonry-item').click(function (e) {
+                e.stopPropagation(); // 阻止事件冒泡
+                var target = $(this).data('target');
+
+                $(target).modal('show');
+            });
+
+            // 上传图片功能
+            $('#uploadArea').click(function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                $('#imageUpload').trigger('click'); // 确保触发点击
+            });
+
+            // 图片预览功能
+            $('#imageUpload').change(function(e) {
+                var file = e.target.files[0];
+                if (file) {
+                    // 文件类型验证
+                    var validTypes = ['image/jpeg', 'image/png', 'image/gif'];
+                    if (!validTypes.includes(file.type)) {
+                        alert('请上传 JPG、PNG 或 GIF 格式的图片');
+                        $(this).val(''); // 清空文件选择
+                        return;
+                    }
+
+                    // 文件大小验证 (5MB)
+                    if (file.size > 10 * 1024 * 1024) {
+                        alert('图片大小不能超过 10MB');
+                        $(this).val(''); // 清空文件选择
+                        return;
+                    }
+
+                    var reader = new FileReader();
+                    reader.onload = function(e) {
+                        $('#previewImg').attr('src', e.target.result);
+                        $('#imagePreview').show();
+                    }
+                    reader.readAsDataURL(file);
+                }
+            });
+
+            // 拖拽上传功能
+            $('#uploadArea').on('dragover', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                $(this).css({
+                    'border-color': '#667eea',
+                    'background-color': '#f8f9fa'
+                });
+            });
+
+            $('#uploadArea').on('dragleave', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                $(this).css({
+                    'border-color': '#ccc',
+                    'background-color': 'transparent'
+                });
+            });
+
+            $('#uploadArea').on('drop', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                var files = e.originalEvent.dataTransfer.files;
+                if (files.length > 0) {
+                    $('#imageUpload')[0].files = files;
+                    $('#imageUpload').trigger('change');
+                }
+                $(this).css({
+                    'border-color': '#ccc',
+                    'background-color': 'transparent'
+                });
+            });
+
+            // 保存图片功能 - 使用AJAX上传
+            $('#saveImageBtn').click(function(e) {
+    e.preventDefault(); // 使用 preventDefault 而不是 stopPropagation
+
+    var title = $('#imageTitle').val();
+    var description = $('#imageDescription').val();
+    var date = $('#imageDate').val();
+    var file = $('#imageUpload')[0].files[0];
+
+    if (!file) {
+        alert('请选择一张图片');
+        return;
+    }
+
+    if (!title) {
+        alert('请输入图片标题');
+        return;
+    }
+
+    // 获取 CSRF token
+    var csrfToken = $('input[name="csrfmiddlewaretoken"]').val();
+
+    // 创建FormData对象
+    var formData = new FormData();
+    formData.append('image', file);
+    formData.append('title', title);
+    formData.append('description', description);
+    if (date) {
+        formData.append('capture_date', date);
+    }
+
+    // 显示加载状态
+    var $btn = $(this);
+    $btn.prop('disabled', true).text('上传中...');
+
+    // AJAX上传
+    $.ajax({
+        url: '/upload_pic/',  // 确保这个URL正确
+        type: 'POST',
+        data: formData,
+        processData: false,
+        contentType: false,
+        headers: {
+            'X-CSRFToken': csrfToken  // 添加 CSRF token 到请求头
+        },
+        success: function(response) {
+            console.log('上传响应:', response); // 添加日志
+            if (response.status === 'success') {
+                alert('图片上传成功！');
+                $('#uploadModal').modal('hide');
+
+                // 重置表单
+                $('#uploadForm')[0].reset();
+                $('#imagePreview').hide();
+
+                // 可选：刷新页面或动态添加新图片
+                location.reload(); // 简单刷新页面
+            } else {
+                alert('上传失败: ' + response.message);
+            }
+        },
+        error: function(xhr, status, error) {
+            console.error('上传错误:', error, xhr.responseText);
+            alert('上传出错: ' + (xhr.responseJSON ? xhr.responseJSON.message : error));
+        },
+        complete: function() {
+            $btn.prop('disabled', false).text('保存图片');
+        }
+    });
+});
+        });
+    </script>
+{% endblock %}

@@ -1,0 +1,165 @@
+/* 标题样式 */
+.article-content h1 {
+  padding-bottom: 0.3em;
+  border-bottom: 2px solid #eaecef;
+  color: #2c3e50;
+}
+
+.article-content h2 {
+  padding-bottom: 0.3em;
+  border-bottom: 1px solid #eaecef;
+  color: #34495e;
+}
+
+.article-content h3 {
+  color: #16a085;
+}
+
+.article-content h4 {
+  color: #27ae60;
+}
+
+.article-content h5 {
+  color: #2980b9;
+}
+
+.article-content h6 {
+  color: #8e44ad;
+}
+
+/* 代码块样式 */
+.article-content pre code {
+    width: 600px;
+    font-size: 17px;
+}
+
+.article-content pre {
+  background: #f6f8fa;
+  border-radius: 6px;
+  padding: 1em;
+  overflow: auto;
+  margin: 1.5em 0;
+  border: 1px solid #e1e4e8;
+}
+
+.article-content code {
+  background: #f3f4f6;
+  padding: 0.2em 0.4em;
+  border-radius: 3px;
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  font-size: 0.9em;
+  color: #e74c3c;
+}
+
+/* 表格样式 */
+.article-content table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 20px 0;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.article-content th {
+  background-color: #f5f7fa;
+  padding: 12px 15px;
+  text-align: left;
+  font-weight: 600;
+  border-bottom: 2px solid #e1e4e8;
+  color: #2c3e50;
+}
+
+.article-content td {
+  padding: 10px 15px;
+  border-bottom: 1px solid #eaecef;
+}
+
+.article-content tr:hover {
+  background-color: #f6f8fa;
+}
+
+/* 链接样式 */
+.article-content a {
+  color: #3498db;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  border-bottom: 1px solid rgba(52, 152, 219, 0.3);
+  padding-bottom: 1px;
+}
+
+.article-content a:hover {
+  color: #2980b9;
+  border-bottom-color: #2980b9;
+}
+
+/* 引用块样式 */
+.article-content blockquote {
+  border-left: 4px solid #3498db;
+  color: #7f8c8d;
+  margin-left: 0;
+  background-color: #f8f9fa;
+  border-radius: 0 6px 6px 0;
+  padding: 5px 10px;
+  margin: 1.5em 0;
+}
+
+.article-content blockquote p {
+  margin: 0;
+}
+
+/* 列表样式 */
+.article-content ul,
+.article-content ol {
+  padding-left: 2em;
+  margin: 15px 0;
+}
+
+.article-content li {
+  margin-bottom: 8px;
+  line-height: 1.6;
+}
+
+.article-content ul li {
+  list-style-type: disc;
+}
+
+.article-content ol li {
+  list-style-type: decimal;
+}
+
+/* 分割线 */
+.article-content hr {
+  height: 1px;
+  background-color: #e1e4e8;
+  border: none;
+  margin: 24px 0;
+}
+
+/* 图片 */
+.article-content img {
+  width: 500px;
+  max-width: 100%;
+  height: auto;
+  border-radius: 6px;
+  margin: 1.5em 0;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+/* 段落样式 */
+.article-content p {
+  margin: 1em 0;
+  line-height: 1.8;
+  color: #34495e;
+}
+
+/* 强调文本 */
+.article-content strong {
+  color: #2c3e50;
+  font-weight: 700;
+}
+
+.article-content em {
+  color: #7f8c8d;
+  font-style: italic;
+}

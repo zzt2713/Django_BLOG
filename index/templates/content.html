@@ -1,0 +1,565 @@
+{% extends 'muban.html' %}
+{% load static %}
+
+{% block css %}
+<title>文章中心</title>
+<style>
+    /* 文章中心主容器 */
+    .article-center-container {
+        min-height: 100vh;
+        padding: 30px 0;
+    }
+    body {
+        /* 关键CSS属性 */
+      background: url('{% static 'img/4.jpg' %}') no-repeat center center fixed;
+        background-size: cover;
+
+        font-family: 'Arial', sans-serif;
+        color: white;
+        height: 100vh;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        position: relative;
+    }
+    /* 内容容器 */
+    .content-wrapper {
+        margin-top: 50px;
+        background: rgba(255, 255, 255, 0.3);
+        backdrop-filter: blur(10px);
+        border-radius: 20px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        padding: 40px;
+        margin-bottom: 30px;
+    }
+    /* 头部样式 */
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 40px;
+        padding-bottom: 20px;
+        border-bottom: 3px solid #e9ecef;
+    }
+
+    .page-title {
+        font-size: 3rem;
+        font-weight: bold;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin: 0;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    /* 添加文章按钮 */
+    .btn-add-article {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+        border-radius: 50px;
+        color: white;
+        font-weight: bold;
+        padding: 15px 30px;
+        font-size: 16px;
+        transition: all 0.3s ease;
+        box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .btn-add-article:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 35px rgba(102, 126, 234, 0.4);
+        color: white;
+        text-decoration: none;
+    }
+
+    /* 表格样式 */
+    .article-table {
+        background: white;
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        border: none;
+    }
+
+    .article-table thead {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+
+    .article-table thead th {
+        color: white;
+        font-weight: bold;
+        border: none;
+        padding: 20px 15px;
+        text-align: center;
+        font-size: 16px;
+    }
+
+    .article-table tbody tr {
+        transition: all 0.3s ease;
+        border-bottom: 1px solid #f8f9fa;
+    }
+
+    .article-table tbody tr:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        background: #f8f9fa;
+    }
+
+    .article-table tbody td {
+        padding: 25px 15px;
+        vertical-align: middle;
+        border: none;
+        text-align: center;
+    }
+
+    /* 文章标题样式 */
+    .article-title {
+        font-size: 2.3rem;
+        font-weight: bold;
+        color: #333;
+        line-height: 1.4;
+        margin-left: 50px;
+        margin-bottom: 10px;
+    }
+
+    .article-title:hover {
+        color: #667eea;
+    }
+
+    /* 文章头部信息 */
+    .article-header {
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 5px;
+        margin-bottom: 15px;
+    }
+
+    /* 置顶标签样式 */
+    .article-top {
+        background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+        color: white;
+        padding: 4px 12px;
+        border-radius: 12px;
+        font-size: 12px;
+        font-weight: bold;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        box-shadow: 0 2px 8px rgba(255, 107, 107, 0.3);
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    /* 标签样式 */
+    .article-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 20px;
+    font-weight: bold;
+    font-size: 13px;
+    box-shadow: 0 3px 10px rgba(102, 126, 234, 0.3);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    /* 添加过渡效果 */
+    transition: all 0.3s ease;
+    /* 确保有相对定位 */
+    position: relative;
+}
+
+.article-tag:hover {
+    /* 上浮效果 */
+    transform: translateY(-3px);
+    /* 增强阴影，增强上浮感 */
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+    /* 可选：改变渐变颜色增强交互感 */
+    background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+}
+
+    /* 标签颜色变体 */
+    .tag-primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+    .tag-success { background: linear-gradient(135deg, #51cf66 0%, #2b8a3e 100%); }
+    .tag-info { background: linear-gradient(135deg, #339af0 0%, #1864ab 100%); }
+    .tag-warning { background: linear-gradient(135deg, #ffa94d 0%, #e8590c 100%); }
+    .tag-danger { background: linear-gradient(135deg, #ff6b6b 0%, #c92a2a 100%); }
+
+    /* 封面图片样式 */
+    .article-cover {
+        width: 100%;
+        max-width: 400px;
+        height: 169px;
+        object-fit: cover;
+        border-radius: 10px;
+        transition: all 0.3s ease;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        margin-bottom: 15px;
+        margin-left: 50px;
+    }
+
+    .article-cover:hover {
+        transform: scale(1.05);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+    }
+
+    /* 数据统计样式 */
+    .article-stats {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        align-items: center;
+    }
+
+    .stat-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-weight: bold;
+        color: #666;
+    }
+
+    .stat-icon {
+        color: #667eea;
+        font-size: 18px;
+    }
+
+    .look-count {
+        color: #28a745;
+    }
+
+    .like-count {
+        color: #dc3545;
+    }
+
+    /* 时间样式 */
+    .article-date {
+        font-weight: bold;
+        color: #666;
+        background: #f8f9fa;
+        padding: 10px 15px;
+        border-radius: 10px;
+        display: inline-block;
+    }
+
+    /* 文章内容容器 */
+    .article-content {
+        text-align: left;
+    }
+
+    /* 空状态样式 */
+    .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+        color: #666;
+    }
+
+    .empty-state i {
+        font-size: 4rem;
+        color: #ddd;
+        margin-bottom: 20px;
+    }
+
+    /* 响应式设计 */
+    @media (max-width: 768px) {
+        .article-center-container {
+            margin-top: 100px;
+            padding: 15px;
+        }
+
+        .content-wrapper {
+            padding: 20px;
+        }
+
+        .page-header {
+            flex-direction: column;
+            gap: 20px;
+            text-align: center;
+        }
+
+        .page-title {
+            font-size: 2rem;
+        }
+
+        .article-table thead {
+            display: none;
+        }
+
+        .article-table tbody tr {
+            display: block;
+            margin-bottom: 20px;
+            border: 1px solid #e9ecef;
+            border-radius: 10px;
+        }
+
+        .article-table tbody td {
+            display: block;
+            text-align: left;
+            border-bottom: 1px solid #f8f9fa;
+            padding: 15px;
+        }
+
+        .article-table tbody td:before {
+            content: attr(data-label);
+            font-weight: bold;
+            display: block;
+            margin-bottom: 5px;
+            color: #667eea;
+            font-size: 14px;
+        }
+
+        .article-cover {
+            max-width: 100%;
+            margin-left: 150px;
+            height: 150px;
+        }
+
+        .article-header {
+            justify-content: center;
+            text-align: center;
+        }
+
+        .article-title {
+            font-size: 1.5rem;
+            text-align: center;
+        }
+
+        .article-stats {
+            flex-direction: row;
+            justify-content: center;
+            gap: 20px;
+        }
+    }
+
+    /* 动画效果 */
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .article-item {
+        animation: fadeInUp 0.6s ease forwards;
+    }
+
+    .article-item:nth-child(1) { animation-delay: 0.1s; }
+    .article-item:nth-child(2) { animation-delay: 0.2s; }
+    .article-item:nth-child(3) { animation-delay: 0.3s; }
+    .article-item:nth-child(4) { animation-delay: 0.4s; }
+    .article-item:nth-child(5) { animation-delay: 0.5s; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="article-center-container">
+    <div class="container">
+        <div class="content-wrapper">
+            <!-- 页面头部 -->
+            <div class="page-header">
+                <h1 class="page-title">
+                    <i class="fa fa-book" aria-hidden="true"></i>
+                    文章中心 {% if tag %} | {{ tag }}
+                    {% endif %}
+                </h1>
+                {% if request.session.role == 1 %}
+                <a href="/content/add/" class="btn-add-article">
+                    <i class="fa fa-plus"></i>
+                    添加文章
+                </a>
+                {% endif %}
+            </div>
+
+            <!-- 文章表格 -->
+            {% if data %}
+            <div class="table-responsive">
+                <table class="table table-hover article-table">
+                    <thead>
+                        <tr>
+                            <th>文章内容</th>
+                            <th>标签</th>
+                            <th>数据统计</th>
+                            <th>发布时间</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in data %}
+                        <tr class="article-item">
+                            <td data-label="文章内容">
+                                <div class="article-content">
+                                    <!-- 文章头部信息 -->
+                                    <div class="article-header">
+                                        {% if item.is_top == 1 %}
+                                        <span class="article-top">
+                                            <i class="fa fa-thumb-tack"></i>
+                                            置顶
+                                        </span>
+                                        {% endif %}
+                                    </div>
+                                    
+                                    <!-- 文章封面和标题 -->
+                                    <a id="article-a" href="/content/article/?nid={{item.id}}" style="text-decoration: none; color: inherit;">
+                                        <img src="/media/{{ item.cover_img }}"
+                                            alt="{{ item.title }}"
+                                            class="article-cover">
+                                    </a>
+                                    <h2 class="article-title">
+                                        <a id="article-a" href="/content/article/?nid={{item.id}}" style="text-decoration: none; color: inherit;">
+                                            {{ item.title }}
+                                        </a>
+                                    </h2>
+                                </div>
+                            </td>
+                            <td data-label="标签">
+                                <a href="/content/tags/?tag={{item.tag.id}}">
+                                    <span class="label label-primary article-tag">
+                                        <i class="fa fa-tag"></i>
+                                        {{ item.tag }}
+                                    </span>
+                                </a>
+                            </td>
+                            <td data-label="数据统计">
+                                <div class="article-stats">
+                                    <div class="stat-item">
+                                        <i class="fa fa-eye stat-icon"></i>
+                                        <span class="look-count">{{ item.look_count }} 浏览</span>
+                                    </div>
+                                    <div class="stat-item">
+                                        <i class="fa fa-heart stat-icon"></i>
+                                        <span class="like-count">{{ item.like_count }} 点赞</span>
+                                    </div>
+                                     <div class="stat-item">
+                                        <i class="fas fa-comment" aria-hidden="true"></i>
+                                        <span class="like-count">{{ item.comment }} 评论</span>
+                                    </div>
+                                </div>
+                            </td>
+                            <td data-label="发布时间">
+                                <span class="article-date">
+                                    <i class="fa fa-clock-o"></i>
+                                    {{ item.date|date:"Y年m月d日" }}
+                                </span>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                <ul class="pagination">
+                    {{ page_string }}
+                </ul>
+            </div>
+            {% else %}
+            <!-- 空状态 -->
+            <div class="empty-state">
+                <i class="fa fa-file-text-o"></i>
+                <h3>暂无文章</h3>
+                <p>还没有发布任何文章，点击上方按钮开始创作吧！</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // 为移动端添加数据标签
+        function addDataLabels() {
+            if (window.innerWidth <= 768) {
+                const headers = ['文章信息', '标签', '数据统计', '发布时间'];
+                document.querySelectorAll('.article-table tbody td').forEach((td, index) => {
+                    td.setAttribute('data-label', headers[index % headers.length]);
+                });
+            }
+        }
+
+        // 图片加载失败处理
+        function handleImageErrors() {
+            document.querySelectorAll('.article-cover').forEach(img => {
+                img.addEventListener('error', function() {
+                    this.src = '{% static 'img/default-cover.jpg' %}';
+                });
+            });
+        }
+
+        // 添加点击效果
+        function addClickEffects() {
+            document.querySelectorAll('.article-table tbody tr').forEach(row => {
+                row.style.cursor = 'pointer';
+                row.addEventListener('click', function(e) {
+                    // 防止点击链接时触发
+                    if (!e.target.closest('a')) {
+                        const link = this.querySelector('a#article-a');
+                        if (link) {
+                            window.location.href = link.href;
+                        }
+                    }
+                });
+            });
+        }
+
+        // 根据标签内容设置不同的颜色
+        function setTagColors() {
+            document.querySelectorAll('.article-tag').forEach(tag => {
+                const text = tag.textContent.trim().toLowerCase();
+                const tagClasses = ['label-primary', 'label-success', 'label-info', 'label-warning', 'label-danger'];
+                
+                // 根据标签内容选择颜色
+                let colorClass = 'label-primary';
+                if (text.includes('技术') || text.includes('tech')) colorClass = 'label-info';
+                else if (text.includes('生活') || text.includes('life')) colorClass = 'label-success';
+                else if (text.includes('教程') || text.includes('tutorial')) colorClass = 'label-warning';
+                else if (text.includes('新闻') || text.includes('news')) colorClass = 'label-danger';
+                
+                tag.className = 'label article-tag ' + colorClass;
+            });
+        }
+
+        // 初始化所有功能
+        addDataLabels();
+        handleImageErrors();
+        addClickEffects();
+        setTagColors();
+
+        // 窗口大小改变时重新添加数据标签
+        window.addEventListener('resize', addDataLabels);
+    });
+
+    // 添加滚动动画
+    const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.opacity = '1';
+                entry.target.style.transform = 'translateY(0)';
+            }
+        });
+    }, observerOptions);
+
+    // 观察所有文章项
+    document.querySelectorAll('.article-item').forEach(item => {
+        item.style.opacity = '0';
+        item.style.transform = 'translateY(30px)';
+        item.style.transition = 'all 0.6s ease';
+        observer.observe(item);
+    });
+</script>
+{% endblock %}

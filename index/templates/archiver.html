@@ -1,0 +1,255 @@
+{% extends 'muban.html' %}
+{% load static %}
+
+{% block css %}
+<title>归档 - Fool's Blog</title>
+<style>
+     body {
+            background-image: url("{% static '/img/guidang.png' %}");
+            background-repeat: no-repeat;
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #333;
+        }
+    /* 归档页面样式 */
+    .archives-container {
+        min-height: calc(100vh - 200px);
+        padding: 100px 20px 50px;
+        max-width: 1200px;
+        margin: 0 auto;
+        background: rgba(255, 255, 255, 0.5);
+        backdrop-filter: blur(10px);
+        border-radius: 10px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        margin-top: 20px;
+        margin-bottom: 20px;
+	min-height:800px;
+    }
+
+    .archives-header {
+        text-align: center;
+        margin-bottom: 50px;
+        position: relative;
+    }
+
+    .archives-header h1 {
+        font-size: 2.5rem;
+        color: #333;
+        margin-bottom: 15px;
+        font-weight: bold;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .archives-header p {
+        font-size: 1.1rem;
+        color: #666;
+        max-width: 600px;
+        margin: 0 auto;
+    }
+
+    .year-section {
+        margin-bottom: 50px;
+        position: relative;
+    }
+
+    .year-title {
+        font-size: 2rem;
+        color: #333;
+        margin-bottom: 25px;
+        padding-bottom: 10px;
+        border-bottom: 2px solid #667eea;
+        position: relative;
+        display: inline-block;
+    }
+
+    .year-title::after {
+        content: '';
+        position: absolute;
+        bottom: -2px;
+        left: 0;
+        width: 50%;
+        height: 2px;
+        background: linear-gradient(90deg, #667eea, #764ba2);
+    }
+
+    .articles-list {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 20px;
+    }
+
+    .article-card {
+        background: white;
+        border-radius: 10px;
+        padding: 20px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        transition: all 0.3s ease;
+        border-left: 4px solid #667eea;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .article-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 3px;
+        background: linear-gradient(90deg, #667eea, #764ba2);
+        transform: scaleX(0);
+        transform-origin: left;
+        transition: transform 0.3s ease;
+    }
+
+    .article-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    }
+
+    .article-card:hover::before {
+        transform: scaleX(1);
+    }
+
+    .article-title {
+        font-size: 1.5rem;
+        color: #333;
+        margin-bottom: 10px;
+        font-weight: bold;
+        line-height: 1.4;
+    }
+
+    .article-date {
+        font-size: 0.9rem;
+        color: #666;
+        display: flex;
+        align-items: center;
+        margin-bottom: 10px;
+    }
+
+    .article-date i {
+        margin-right: 5px;
+        color: #667eea;
+    }
+
+    .article-tag {
+        display: inline-block;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+        padding: 3px 10px;
+        border-radius: 15px;
+        font-size: 0.8rem;
+        margin-top: 5px;
+    }
+
+    .no-articles {
+        text-align: center;
+        padding: 40px 20px;
+        color: #666;
+        font-size: 1.1rem;
+    }
+
+    .no-articles i {
+        font-size: 3rem;
+        margin-bottom: 15px;
+        color: #ccc;
+    }
+
+    /* 响应式设计 */
+    @media (max-width: 768px) {
+        .archives-container {
+            padding: 80px 15px 30px;
+            margin: 10px;
+        }
+
+        .archives-header h1 {
+            font-size: 2rem;
+        }
+
+        .year-title {
+            font-size: 1.7rem;
+        }
+
+        .articles-list {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content%}
+<div class="archives-container">
+    <div class="archives-header">
+        <h1 style="font-size: 50px;">文章归档</h1>
+        <p>这里记录了所有发布的文章，按年份分类整理</p>
+    </div>
+
+    {% if articles_by_year %}
+        {% for year, articles in articles_by_year.items %}
+        <div class="year-section">
+            <h2 class="year-title">{{ year }}年</h2>
+            <div class="articles-list">
+                {% for article in articles %}
+                <div class="article-card">
+                    <h3 class="article-title">
+                        <a href="/content/article/?nid={{ article.id }}" style="color: inherit; text-decoration: none;">
+                            {{ article.title }}
+                        </a>
+                    </h3>
+                    <div class="article-date">
+                        <i class="far fa-calendar-alt"></i>
+                        {{ article.date|date:"m月d日" }}
+                    </div>
+                    <span class="article-tag">{{ article.tag.tag }}</span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="no-articles">
+            <i class="far fa-file-alt"></i>
+            <p>暂无文章发布</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block js %}
+<script>
+    // 页面加载完成后添加动画效果
+    document.addEventListener('DOMContentLoaded', function() {
+        // 为年份标题添加动画
+        const yearTitles = document.querySelectorAll('.year-title');
+        yearTitles.forEach((title, index) => {
+            title.style.opacity = '0';
+            title.style.transform = 'translateY(20px)';
+            
+            setTimeout(() => {
+                title.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+                title.style.opacity = '1';
+                title.style.transform = 'translateY(0)';
+            }, index * 200);
+        });
+        
+        // 为文章卡片添加动画
+        const articleCards = document.querySelectorAll('.article-card');
+        articleCards.forEach((card, index) => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(20px)';
+            
+            setTimeout(() => {
+                card.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+                card.style.opacity = '1';
+                card.style.transform = 'translateY(0)';
+            }, 300 + (index % 10) * 100);
+        });
+    });
+</script>
+{% endblock %}

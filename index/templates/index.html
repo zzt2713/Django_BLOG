@@ -1,0 +1,572 @@
+    {% extends 'muban.html' %}
+    {% load static %}
+
+    {% block css %}
+        <title>MY BLOG</title>
+        <link rel="stylesheet" href="{% static 'css/index.css' %}">
+        <link rel="stylesheet" href="{% static 'css/fullpage.css' %}">
+        <link rel="stylesheet" href="{% static 'css/all.min.css' %}">
+        <style>
+        .tag-link {
+            display: inline-block;
+            margin: 5px 8px 5px 0;
+            padding: 5px 12px;
+            color: white;
+            text-decoration: none;
+            border-radius: 15px;
+            font-size: 13px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .tag-link:nth-child(6n+1) {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a52);
+        }
+
+        .tag-link:nth-child(6n+2) {
+            background: linear-gradient(135deg, #48c78e, #00d1b2);
+        }
+
+        .tag-link:nth-child(6n+3) {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+        }
+
+        .tag-link:nth-child(6n+4) {
+            background: linear-gradient(135deg, #f093fb, #f5576c);
+        }
+
+        .tag-link:nth-child(6n+5) {
+            background: linear-gradient(135deg, #4ecdc4, #44a08d);
+        }
+
+        .tag-link:nth-child(6n+6) {
+            background: linear-gradient(135deg, #ffd89b, #19547b);
+        }
+
+        .tag-link:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            color: white;
+            text-decoration: none;
+        }
+        </style>
+        <style>
+
+        </style>
+    {% endblock %}
+
+{% block content %}
+    <div id="fullpage">
+        <!-- 第一页 -->
+        <div class="section" style="background: url({% static 'img/bgzgn.jpg' %}) no-repeat center center fixed; background-size: cover; height: 100vh;">
+            <!-- 视频背景 -->
+{#            <video id="video-background" autoplay muted loop playsinline>#}
+{#                <source src="{% static 'video/zgn.mp4' %}" type="video/mp4">#}
+{#            </video>#}
+            <h1 class="blog-title">Hello World!</h1>
+            <div class="containers">
+                <div class="typed-container">
+                    <span id="element"></span>
+                </div>
+            </div>
+
+            <!-- 第一页的向下箭头 -->
+            <div class="down-arrow" onclick="fullpage_api.moveSectionDown()">
+                <i class="fas fa-chevron-down" aria-hidden="true"></i>
+            </div>
+        </div>
+
+        {#url('{% static 'img/zsbg.webp' %}'); background-size: cover; background-repeat: no-repeat;#}
+        <!-- 第二页 -->
+        <div class="section enhanced-gradient  home-second-page"
+                style="background-image: url('{% static 'img/bj3.jpg' %}');
+                        background-size: cover;
+                        background-repeat: no-repeat; ">
+                        
+            <!-- 第二页的内容 -->
+            <div class="col-xs-3 twofk" style="margin-top: 65px;">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h3 class="panel-title" style="color: white">博主信息</h3>
+                    </div>
+                    <div class="panel-body">
+                        <!-- 头像 -->
+                    <div class="text-center" style="margin-bottom: 20px;">
+                        <img src="{% static 'img/7.jpg' %}"
+                                class="img-circle avatar-hover"
+                                style="width: 120px; height: 120px; border: 4px solid #c4b5fd;"
+                                alt="博主头像">
+                        <h4 style="margin-top: 10px; color: #333; font-weight: bold;">Fool</h4>
+                    </div>
+
+                        <!-- 文章统计 -->
+                        <div class="stats-section" style="margin-bottom: 20px;">
+                            <h5 style="color: #6366f1; border-bottom: 2px solid #c4b5fd; padding-bottom: 5px;">
+                                <i class="fas fa-chart-bar"></i> 数据统计
+                            </h5>
+                            <div class="stat-item" style="display: flex; justify-content: space-between; margin: 8px 0;">
+                                <span style="color: #666;">总文章数:{{count}}</span>
+                                <span class="badge" style="background: #6366f1; color: white;"></span>
+                            </div>
+                            <div class="stat-item" style="display: flex; justify-content: space-between; margin: 8px 0;">
+                                <span style="color: #666;">文章访客量:{{cont_count}}</span>
+                                <span class="badge" style="background: #c4b5fd; color: white;"></span>
+                            </div>
+                            <div class="stat-item" style="display: flex; justify-content: space-between; margin: 8px 0;">
+                                <span style="color: #666;">网站访客量:{{ site.site_count }}</span>
+                                <span class="badge" style="background: #ff6b6b; color: white;"></span>
+                            </div>
+                        </div>
+
+                        <!-- 分类列表 -->
+                        <div class="category-section">
+                            <h5 style="color: #6366f1; border-bottom: 2px solid #c4b5fd; padding-bottom: 5px;">
+                                <i class="fas fa-folder-open"></i> 网站运行时间
+                            </h5>
+                            <ul class="list-unstyled" style="margin-top: 10px;">
+                                <li style="padding: 8px 0; border-bottom: 1px dashed #eee;">
+                                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                                        <span style="color: #666;">运行时间:</span>
+                                        <span id="website-runtime" class="badge" style="background: #c4b5fd; color: white;">
+                                            {{ runtime_display }}
+                                        </span>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                        <!-- 媒体信息 -->
+                        <div class="media-info" style="margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 8px; border-left: 3px solid #6366f1;">
+                            <h5 style="color: #6366f1; margin-bottom: 15px; border-bottom: 2px solid #c4b5fd; padding-bottom: 5px;">
+                                <i class="fas fa-share-alt"></i> 关注我
+                            </h5>
+                            <div class="social-links" style="display: flex; justify-content: space-around; gap: 15px;">
+                                <a href=""
+                                target="_blank"
+                                class="social-link"
+                                style="color: #333; text-decoration: none; text-align: center; transition: all 0.3s ease;">
+                                    <i class="fab fa-github" style="font-size: 24px;"></i>
+                                    <div style="font-size: 12px; margin-top: 5px;">GitHub</div>
+                                </a>
+                                <a href="https://space.bilibili.com/478180513?spm_id_from=333.1007.0.0"
+                                target="_blank"
+                                class="social-link"
+                                style="color: #00a1d6; text-decoration: none; text-align: center; transition: all 0.3s ease;">
+                                    <i class="fab fa-bilibili" style="font-size: 24px;"></i>
+                                    <div style="font-size: 12px; margin-top: 5px;">B站</div>
+                                </a>
+                            </div>
+                        </div>
+                        <!-- 博主签名 -->
+                        <div class="signature" style="margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 8px; border-left: 3px solid #6366f1;">
+                            <p style="color: #666; font-style: italic; margin: 0; font-size: 14px;">
+                                <i class="fas fa-quote-left"></i>
+                                {{ site.signature }}
+                                <i class="fas fa-quote-right"></i>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                 <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h3 class="panel-title" style="color: white">搜索</h3>
+                    </div>
+                    <div class="panel-body">
+                        <form action="/search/" method="get">
+                            <input type="text" name="q" placeholder="搜索文章..." style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                            <button type="submit" style="width: 100%; margin-top: 10px; padding: 8px; background: #6366f1; color: white; border: none; border-radius: 4px;">
+                                搜索
+                            </button>
+                        </form>
+                    </div>
+                </div>
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h3 class="panel-title" style="color: white">公告信息</h3>
+                    </div>
+                    <div class="panel-body">
+                        <div class="stats-section" style="margin-bottom: 20px;">
+                            <h5 style="color: #6366f1; border-bottom: 2px solid #c4b5fd; padding-bottom: 5px;">
+                                <i class="fa fa-bullhorn" aria-hidden="true"></i> 更新内容
+                            </h5>
+                            <div class="stat-item" style="display: flex; justify-content: space-between; margin: 8px 0;">
+                                <span style="color: #666;font-weight: bold;">
+                                    <b>{{ announcement.version }}</b>
+                                    <br/>
+                                    {{ announcement.content }}</span>
+                                <span>{{ announcement.time|date:"Y-m-d"  }}</span>
+                            </div>
+
+                        </div>
+                        <div class="stats-section" style="margin-bottom: 20px;">
+                            <h5 style="color: #6366f1; border-bottom: 2px solid #c4b5fd; padding-bottom: 5px;">
+                                <i class="fa fa-bullhorn" aria-hidden="true"></i> 网站公告
+                            </h5>
+                            <div class="stat-item" style="display: flex; justify-content: space-between; margin: 8px 0;">
+                                <span style="color: #666;font-weight: bold;">
+                                    {{ site.site_meg }}</span>
+                            </div>
+
+                        </div>
+
+                        <div class="category-section">
+                            <h5 style="color: #6366f1; border-bottom: 2px solid #c4b5fd; padding-bottom: 5px;">
+                                <i class="fa fa-star" aria-hidden="true"></i> 推荐的文章
+                            </h5>
+                            <ul class="list-unstyled" style="margin-top: 10px;">
+                                <li style="padding: 8px 0; border-bottom: 1px dashed #eee;">
+                                    <div class="top-articles-container">
+                                        {% for i in data %}
+                                            {% if i.is_top == 1 %}
+                                                <div class="top-article-row">
+                                                    <a href="/content/article/?nid={{ i.id }}" class="article-link">
+                                                        <span class="article-title">{{ i.title }}</span>
+                                                        <span class="top-badge">推荐</span>
+                                                    </a>
+                                                </div>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title" style="color: white">最新弹幕留言</h3>
+                </div>
+                <div class="panel-body">
+                    <div class="stats-section" style="margin-bottom: 20px;">
+                        <h5 style="color: #6366f1; border-bottom: 2px solid #c4b5fd; padding-bottom: 5px;">
+                            <i class="fa fa-comments" aria-hidden="true"></i> 弹幕
+                        </h5>
+                        <div class="danmu-container" id="danmuContainer">
+                            <!-- 弹幕将通过JavaScript动态添加 -->
+                        </div>
+                        <div class="stat-item" style="display: flex; justify-content: space-between; margin: 8px 0;">
+                            <span class="badge" style="background: #6366f1; color: white;">共{{ dm_count }}条</span>
+                            <a href="/leaveList/"><span class="badge" style="background: #6366f1; color: white;">我也发条弹幕>>></span></a>
+
+                        </div>
+                    </div>
+                </div>
+
+
+
+                </div>
+                   <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h3 class="panel-title" style="color: white">标签分类</h3>
+                    </div>
+                    <div class="panel-body">
+                        {% for i in tag %}
+                        <a href="/content/tags/?tag={{i.id}}" class="tag-link">
+                            {{i.tag}}
+                        </a>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xs-9" style="margin-top: 65px; ">
+                <div class="container-fluid" >
+                    <div class="panel">
+                        <div class="panel-heading">
+                            <h3 class="panel-title" style="color: white;">文章 ({{ data|length }})</h3>
+                            <a class="more-link" href="/content/" style="float: right">MORE>>></a>
+                        </div>
+                        {% for i in data %}
+                            <a href="/content/article/?nid={{i.id}}" style="text-decoration: none;" class="article-item">
+                                <div class="panel-body">
+                                    <div class="media">
+                                        <div class="media-left">
+                                                <img src="/media/{{ i.cover_img }}"
+                                                        class="media-object"
+                                                        style="width: 300px; height:150px;"
+                                                        loading="lazy"
+                                                        alt="{{ i.title }}">
+                                        </div>
+                                        <div class="media-body">
+                                            {% if i.is_top == 1 %}
+                                                <p class="is_top" style="float: right;color:white;">置顶</p>
+                                            {% endif %}
+                                            <h2 class="media-heading">{{ i.title }}</h2>
+                                            <p style=" text-overflow: ellipsis;  overflow: hidden;">{{ i.content }}</p>
+                                            <p class="tag" style="float:right;">{{ i.tag }}</p>
+                                            <p style=" color:rgb(111, 0, 247); margin: 0;bottom:0%">{{ i.date }}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </a>
+                        {% empty %}
+                            <div class="panel-body">
+                                <p style="text-align: center; color: #999; padding: 50px 0;">
+                                    <i class="fas fa-inbox" style="font-size: 3em; display: block; margin-bottom: 15px; opacity: 0.5;"></i>
+                                    暂无文章
+                                </p>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            <!-- 版权信息 -->
+            <footer class="custom-footer col-xs-12" style="
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                padding: 20px 0;
+                width: 100%;
+                box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+            ">
+                <div class="footer-container">
+                    <div class="footer-row">
+                        <div class="footer-left">
+                            <p style="margin: 0; opacity: 0.9;">
+                                <i class="fa fa-heart" style="color: #ff6b6b;"></i>
+                                Fool's Blog - 分享知识与生活
+                            </p>
+                        </div>
+                        <div class="footer-right">
+                            <p style="margin: 0; opacity: 0.8; font-size: 14px;">
+                                &copy; 2025 Fool's Blog. All Rights Reserved.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </footer>
+            <!-- 第二页的向下箭头 -->
+{#            <div class="down-arrow" onclick="fullpage_api.moveSectionDown()">#}
+{#                <span class="glyphicon glyphicon-chevron-down" aria-hidden="true"></span>#}
+{#            </div>#}
+        </div>
+
+    </div>
+
+    {% endblock %}
+<style>
+    /* 使用自定义类名避免冲突 */
+    .custom-footer {
+        margin-top: 10px;
+    }
+    
+    .footer-container {
+        width: 100%;
+        padding-right: 15px;
+        padding-left: 15px;
+        margin-right: auto;
+        margin-left: auto;
+    }
+    
+    @media (min-width: 576px) {
+        .footer-container {
+            max-width: 540px;
+        }
+    }
+    
+    @media (min-width: 768px) {
+        .footer-container {
+            max-width: 720px;
+        }
+    }
+    
+    @media (min-width: 992px) {
+        .footer-container {
+            max-width: 960px;
+        }
+    }
+    
+    @media (min-width: 1200px) {
+        .footer-container {
+            max-width: 1140px;
+        }
+    }
+    
+    .footer-row {
+        display: flex;
+        flex-wrap: wrap;
+        margin-right: -15px;
+        margin-left: -15px;
+    }
+    
+    .footer-left,
+    .footer-right {
+        position: relative;
+        width: 100%;
+        padding-right: 15px;
+        padding-left: 15px;
+    }
+    
+    @media (min-width: 768px) {
+        .footer-left {
+            flex: 0 0 50%;
+            max-width: 50%;
+        }
+        
+        .footer-right {
+            flex: 0 0 50%;
+            max-width: 50%;
+            text-align: right;
+        }
+    }
+    
+    /* 响应式调整 */
+    @media (max-width: 767px) {
+        .footer-row {
+            text-align: center;
+        }
+        
+        .footer-right {
+            text-align: center;
+            margin-top: 10px;
+        }
+    }
+</style>   
+    {% block js %}
+        <script src="{% static 'js/fullpage.min.js' %}"></script>
+        <script src="{% static 'js/typed.js' %}"></script>
+        <script src="{% static 'js/index.js' %}"></script>
+        <script>
+        // 弹幕系统
+function initDanmu() {
+    const container = document.getElementById('danmuContainer');
+    const danmus = [
+        {% for i in dm %}
+        "{{ i.content }}",
+        {% endfor %}
+    ];
+
+    const colors = ['type-1', 'type-2', 'type-3', 'type-4', 'type-5'];
+
+    // 清空容器
+    container.innerHTML = '';
+
+    // 创建弹幕元素
+    danmus.forEach((content, index) => {
+        setTimeout(() => {
+            const danmu = document.createElement('div');
+            danmu.className = `danmu-item ${colors[index % colors.length]}`;
+            danmu.textContent = content;
+
+            // 随机垂直位置
+            const top = Math.random() * 160; // 0-160px之间的随机位置
+            danmu.style.top = `${top}px`;
+
+            // 随机速度 (6-10秒)
+            const duration = 6 + Math.random() * 4;
+            danmu.style.animationDuration = `${duration}s`;
+
+            container.appendChild(danmu);
+
+            // 动画结束后移除元素
+            danmu.addEventListener('animationend', function() {
+                this.remove();
+            });
+
+        }, index * 800); // 每条弹幕间隔0.8秒
+    });
+
+    // 循环播放
+    setInterval(() => {
+        if (container.children.length < 5) { // 如果弹幕太少，重新开始
+            initDanmu();
+        }
+    }, 15000);
+}
+
+        document.addEventListener('DOMContentLoaded', initDanmu);
+        
+        // 文章渐入动画效果
+        document.addEventListener('DOMContentLoaded', function() {
+            const articles = document.querySelectorAll('.article-item');
+            
+            const observerOptions = {
+                root: null,
+                rootMargin: '0px',
+                threshold: 0.1
+            };
+            
+            const observer = new IntersectionObserver(function(entries) {
+                entries.forEach(function(entry) {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('fade-in');
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, observerOptions);
+            
+            articles.forEach(function(article) {
+                observer.observe(article);
+            });
+        });
+        
+        // 添加点击效果
+            document.querySelectorAll('.media').forEach(card => {
+                card.addEventListener('click', function() {
+                    this.style.transform = 'translateY(-5px) scale(0.98)';
+                    setTimeout(() => {
+                        this.style.transform = 'translateY(-10px)';
+                    }, 150);
+                });
+            });
+            // 确保视频始终播放
+            document.addEventListener('DOMContentLoaded', function() {
+                const video = document.getElementById('video-background');
+
+                // 尝试自动播放
+                video.play().catch(function(error) {
+                    console.log('自动播放失败:', error);
+                });
+
+                // 防止用户暂停
+                video.addEventListener('pause', function() {
+                    video.play();
+                });
+
+                // 防止用户控制视频
+                video.controls = false;
+            });
+            function updateWebsiteRuntime() {
+            // 网站启动时间戳（从Django传递）
+            const startTimestamp = {{ start_timestamp }};
+            const startTime = new Date(startTimestamp * 1000);
+            const now = new Date();
+            
+            // 计算时间差（毫秒）
+            const diffMs = now - startTime;
+            
+            // 计算各时间单位
+            const seconds = Math.floor(diffMs / 1000);
+            const minutes = Math.floor(seconds / 60);
+            const hours = Math.floor(minutes / 60);
+            const days = Math.floor(hours / 24);
+            const months = Math.floor(days / 30);
+            const years = Math.floor(months / 12);
+            
+            // 计算剩余时间
+            const remainingMonths = months % 12;
+            const remainingDays = days % 30;
+            const remainingHours = hours % 24;
+            const remainingMinutes = minutes % 60;
+            const remainingSeconds = seconds % 60;
+            
+            // 格式化显示
+            const runtimeText = `${years}年${remainingMonths}月${remainingDays}天${remainingHours}时${remainingMinutes}分${remainingSeconds}秒`;
+            
+            // 更新页面显示
+            const runtimeElement = document.getElementById('website-runtime');
+            if (runtimeElement) {
+                runtimeElement.textContent = runtimeText;
+            }
+        }
+
+        // 页面加载后启动定时器
+        document.addEventListener('DOMContentLoaded', function() {
+            // 初始更新
+            updateWebsiteRuntime();
+            
+            // 每秒更新一次
+            setInterval(updateWebsiteRuntime, 1000);
+        });
+        </script>
+
+    {% endblock %}

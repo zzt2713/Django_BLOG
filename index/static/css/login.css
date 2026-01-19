@@ -1,0 +1,408 @@
+.login-box {
+            background: rgba(255, 255, 255, 0.5);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+            width: 100%;
+            max-width: 450px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* 平滑过渡动画 */
+            transform: translateY(0) scale(1); /* 初始位置和大小 */
+        }
+
+        /* 鼠标悬浮上浮效果 */
+        .login-box:hover {
+            transform: translateY(-15px); /* 上浮15像素并轻微放大 */
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4); /* 增强阴影效果 */
+            background: rgba(255, 255, 255, 0.6); /* 增加背景透明度 */
+            border: 1px solid rgba(255, 255, 255, 0.4); /* 边框更明显 */
+        }
+        .message-toast {
+            animation: slideInRight 0.3s ease-out;
+        }
+
+        @keyframes slideInRight {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        /* 加载动画 */
+        .fa-spin {
+            animation: fa-spin 1s infinite linear;
+        }
+
+        @keyframes fa-spin {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* 错误输入框样式 */
+        .form-control.error {
+            border-color: #e74c3c !important;
+            box-shadow: 0 0 0 0.2rem rgba(231, 76, 60, 0.25) !important;
+        }
+
+        /* 按钮禁用状态 */
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            overflow-x: hidden;
+            font-size: 16px; /* 基础字体大小 */
+        }
+
+        .video-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        #video-background {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.4);
+            z-index: -1;
+        }
+
+        .login-container {
+            min-height: 100vh;
+            min-width: 700px;
+            display: flex;
+            align-items: center;
+            float:right;
+            padding: 20px;
+        }
+
+        .login-box {
+            background: rgba(255, 255, 255, 0.5);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+            width: 100%;
+            max-width: 450px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .login-header h2 {
+            color: #2c3e50;
+            font-weight: 700;
+            margin-bottom: 10px;
+            font-size: 2.5rem; /* 增大标题字体 */
+        }
+
+        .login-header p {
+            color: #7f8c8d;
+            font-size: 1.3rem; /* 增大副标题字体 */
+            font-weight: 500;
+        }
+
+        .form-group {
+            margin-bottom: 25px; /* 增加间距 */
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2c3e50;
+            font-size: 1.2rem; /* 增大标签字体 */
+        }
+
+        .form-control {
+            background: rgba(255, 255, 255, 0.9);
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            padding: 18px 20px; /* 增加内边距 */
+            font-size: 1.1rem; /* 增大输入框字体 */
+            transition: all 0.3s ease;
+            height: auto;
+        }
+
+        .form-control::placeholder {
+            font-size: 1.2rem; /* 增大placeholder字体 - 重点调整这里 */
+            color: #adb5bd;
+            font-weight: 500;
+        }
+
+        .form-control:focus {
+            background: white;
+            border-color: #667eea;
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+        }
+
+        .code-group {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .code-input {
+            flex: 1;
+        }
+
+        .code-image {
+            flex-shrink: 0;
+        }
+
+        .code-image img {
+            border-radius: 8px;
+            border: 2px solid #e9ecef;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 140px; /* 增大验证码图片 */
+            height: 50px;
+        }
+
+        .code-image img:hover {
+            border-color: #667eea;
+            transform: scale(1.05);
+        }
+
+        .btn-login {
+            background: linear-gradient(135deg, #7cdf7c 0%, #158515 100%);
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-weight: 600;
+            padding: 18px; /* 增加按钮内边距 */
+            font-size: 1.3rem; /* 增大按钮字体 */
+            transition: all 0.3s ease;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+
+        .btn-register {
+            background: linear-gradient(135deg, #66c2ea 0%, #2268cf 100%);
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-weight: 600;
+            padding: 18px; /* 增加按钮内边距 */
+            font-size: 1.3rem; /* 增大按钮字体 */
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+
+        .btn-login:hover, .btn-register:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        .form-switch {
+            text-align: center;
+            margin-top: 25px;
+            padding-top: 20px;
+            border-top: 1px solid #e9ecef;
+
+        }
+
+        .form-switch p {
+            font-size: 1.5rem; /* 增大切换链接的字体 */
+            color: #5d6d7e;
+        }
+
+        .switch-link {
+            color: #667eea;
+            font-weight: 600;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1.1rem; /* 增大链接字体 */
+        }
+
+        .switch-link:hover {
+            color: #764ba2;
+            text-decoration: underline;
+        }
+
+        .error-message {
+            color: #e74c3c;
+            font-size: 1rem; /* 增大错误信息字体 */
+            margin-top: 8px;
+            display: none; /* 初始隐藏错误信息 */
+            font-weight: 500;
+            background: rgba(231, 76, 60, 0.1);
+            padding: 8px 12px;
+            border-radius: 6px;
+            border-left: 4px solid #e74c3c;
+        }
+
+        .error-message.show {
+            display: block; /* 有错误时显示 */
+        }
+
+        .form-check {
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+        }
+
+        .form-check-input {
+            width: 20px; /* 增大复选框 */
+            height: 20px;
+            margin-right: 10px;
+        }
+
+        .form-check-label {
+            color: #5d6d7e;
+            font-weight: 500;
+            margin:5px 5px;
+            font-size: 1.1rem; /* 增大复选框标签字体 */
+        }
+
+        .back-home {
+            position: absolute;
+            top: 30px;
+            left: 30px;
+        }
+
+        .btn-home {
+            background: rgba(255, 255, 255, 0.9);
+            border: none;
+            border-radius: 50px;
+            padding: 15px 30px; /* 增大返回按钮 */
+            color: #2c3e50;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            font-size: 1.1rem; /* 增大返回按钮字体 */
+        }
+
+        .btn-home:hover {
+            background: white;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+            text-decoration: none;
+            color: #2c3e50;
+        }
+
+        /* 消息提示样式增强 */
+        .alert {
+            font-size: 1.1rem; /* 增大提示消息字体 */
+            padding: 15px 20px;
+            border-radius: 12px;
+        }
+
+        .alert strong {
+            font-size: 1.2rem;
+        }
+
+        /* 错误输入框高亮 */
+        .form-control.error {
+            border-color: #e74c3c !important;
+            box-shadow: 0 0 0 0.2rem rgba(231, 76, 60, 0.25) !important;
+            background: rgba(231, 76, 60, 0.05);
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .login-box {
+                padding: 30px 25px;
+                margin: 20px;
+            }
+
+            .back-home {
+                top: 20px;
+                left: 20px;
+            }
+
+            .login-header h2 {
+                font-size: 2.2rem;
+            }
+
+            .login-header p {
+                font-size: 1.2rem;
+            }
+
+            .form-control {
+                font-size: 1rem;
+                padding: 16px 18px;
+            }
+
+            .form-control::placeholder {
+                font-size: 1.1rem; /* 移动端placeholder字体 */
+            }
+
+            .btn-login,
+            .btn-register {
+                font-size: 1.2rem;
+                padding: 16px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .login-box {
+                padding: 25px 20px;
+            }
+
+            .code-group {
+                flex-direction: column;
+            }
+
+            .code-image img {
+                width: 100%;
+                height: 45px;
+            }
+
+            .login-header h2 {
+                font-size: 2rem;
+            }
+
+            .login-header p {
+                font-size: 1.1rem;
+            }
+
+            .form-control {
+                font-size: 1rem;
+            }
+
+            .form-control::placeholder {
+                font-size: 1rem; /* 小屏幕placeholder字体 */
+            }
+
+            .btn-login,
+            .btn-register {
+                font-size: 1.1rem;
+            }
+        }

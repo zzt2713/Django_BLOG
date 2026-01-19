@@ -1,0 +1,471 @@
+{% extends 'muban.html' %}
+{% load static %}
+
+{% block css %}
+    <title>个人设置</title>
+    <style>
+        body {
+            background-image: url("{% static '/img/d2.jpg' %}");
+            background-repeat: no-repeat;
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #333;
+        }
+
+        .container {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            justify-content: center;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .transparent-box {
+            background-color: rgba(255, 255, 255, 0.4);
+            border-radius: 15px;
+            padding: 40px;
+            color: #333;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 600px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .transparent-box:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .table-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .table-header h1 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-weight: 600;
+            font-size: 28px;
+        }
+
+        .table-header p {
+            color: #7f8c8d;
+            font-size: 16px;
+            margin-top: 0;
+        }
+
+        .profile-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .profile-image {
+            text-align: center;
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .profile-image img {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid rgba(52, 152, 219, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .profile-image:hover img {
+            border-color: rgba(52, 152, 219, 0.7);
+            transform: scale(1.05);
+        }
+
+        .profile-image .change-photo {
+            display: inline-block;
+            margin-top: 10px;
+            color: #3498db;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .profile-image .change-photo:hover {
+            color: #2980b9;
+            text-decoration: underline;
+        }
+
+        .profile-info {
+            width: 100%;
+        }
+
+        .info-item {
+            margin-bottom: 20px;
+        }
+
+        .info-label {
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .info-value input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 15px;
+            transition: all 0.3s;
+            box-sizing: border-box;
+        }
+
+        .info-value input:focus {
+            border-color: #3498db;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+        }
+
+        .info-value input:disabled {
+            background-color: #f8f9fa;
+            color: #6c757d;
+            cursor: not-allowed;
+            border-color: #e9ecef;
+        }
+
+        .disabled-note {
+            font-size: 13px;
+            color: #6c757d;
+            margin-top: 5px;
+            display: flex;
+            align-items: center;
+        }
+
+        .disabled-note i {
+            margin-right: 5px;
+            color: #6c757d;
+        }
+
+        .section-title {
+            color: #2c3e50;
+            border-bottom: 2px solid #ecf0f1;
+            padding-bottom: 10px;
+            margin-top: 30px;
+            margin-bottom: 20px;
+            font-weight: 600;
+            font-size: 18px;
+        }
+
+        .action-buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 15px;
+        }
+
+        .btn-primary {
+            background-color: #3498db;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #2980b9;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-secondary {
+            background-color: #95a5a6;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background-color: #7f8c8d;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .password-hint {
+            font-size: 13px;
+            color: #7f8c8d;
+            margin-top: 5px;
+            display: block;
+        }
+
+        .alert {
+            padding: 12px 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .alert-success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert-error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+
+            .transparent-box {
+                padding: 25px;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+            }
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <div class="transparent-box">
+            <div class="alert" id="messageAlert"></div>
+
+            <div class="table-header">
+                <h1>个人设置</h1>
+                <p>管理您的个人信息和账户安全</p>
+            </div>
+
+            <div class="profile-section">
+                <div class="profile-image">
+                    {% if user.avatar %}
+                        <img src="/media/{{ user.avatar }}" alt="用户头像" id="avatarImage">
+                    {% else %}
+                        <img src="{% static '' %}" alt="用户头像" id="avatarImage">
+                    {% endif %}
+                    <div class="change-photo" id="changePhoto">更换头像</div>
+                    <input type="file" id="avatarInput" accept="image/*" style="display: none;">
+                </div>
+
+                <div class="profile-info">
+                    <div class="info-item">
+                        <label class="info-label">用户名</label>
+                        <div class="info-value">
+                            <input type="text" value="{{ user.username }}" disabled>
+                            <div class="disabled-note" style="color:red">
+                                ※ 用户名创建后无法修改
+                            </div>
+                        </div>
+                    </div>
+
+                    <h3 class="section-title">安全设置</h3>
+
+                    <form id="passwordForm">
+                        {% csrf_token %}
+                        <div class="info-item">
+                            <label class="info-label">当前密码</label>
+                            <div class="info-value">
+                                <input type="password" name="current_password" placeholder="请输入当前密码" required>
+                            </div>
+                        </div>
+
+                        <div class="info-item">
+                            <label class="info-label">新密码</label>
+                            <div class="info-value">
+                                <input type="password" name="new_password" placeholder="请输入新密码" required>
+                                <span class="password-hint">密码长度至少8位，包含字母和数字</span>
+                            </div>
+                        </div>
+
+                        <div class="info-item">
+                            <label class="info-label">确认新密码</label>
+                            <div class="info-value">
+                                <input type="password" name="confirm_password" placeholder="请再次输入新密码" required>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="action-buttons">
+                <button class="btn btn-secondary" id="cancelBtn">取消</button>
+                <button class="btn btn-primary" id="saveBtn">保存更改</button>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block js %}
+      <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const avatarImage = document.getElementById('avatarImage');
+            const changePhoto = document.getElementById('changePhoto');
+            const avatarInput = document.getElementById('avatarInput');
+            const saveButton = document.getElementById('saveBtn');
+            const cancelButton = document.getElementById('cancelBtn');
+            const messageAlert = document.getElementById('messageAlert');
+            const passwordForm = document.getElementById('passwordForm');
+            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+            // 显示消息
+            function showMessage(message, type) {
+                messageAlert.textContent = message;
+                messageAlert.className = `alert alert-${type}`;
+                messageAlert.style.display = 'block';
+                setTimeout(() => {
+                    messageAlert.style.display = 'none';
+                }, 5000);
+            }
+
+            // 头像上传功能
+            changePhoto.addEventListener('click', function() {
+                avatarInput.click();
+            });
+
+            avatarInput.addEventListener('change', function() {
+                if (this.files && this.files[0]) {
+                    const file = this.files[0];
+
+                    // 验证文件类型
+                    const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/jpg'];
+                    if (!allowedTypes.includes(file.type)) {
+                        showMessage('只支持 JPEG、PNG、GIF 格式的图片', 'error');
+                        return;
+                    }
+
+                    // 验证文件大小（5MB）
+                    if (file.size > 5 * 1024 * 1024) {
+                        showMessage('图片大小不能超过 5MB', 'error');
+                        return;
+                    }
+
+                    const formData = new FormData();
+                    formData.append('avatar', file);
+                    formData.append('csrfmiddlewaretoken', csrfToken);
+
+                    // 显示上传中状态
+                    changePhoto.textContent = '上传中...';
+                    changePhoto.style.pointerEvents = 'none';
+
+                    fetch('/proSet/upload_avatar/', {
+                        method: 'POST',
+                        body: formData
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.status) {
+                            // 更新头像显示
+                            const reader = new FileReader();
+                            reader.onload = function(e) {
+                                avatarImage.src = e.target.result;
+                            }
+                            reader.readAsDataURL(file);
+                            showMessage('头像上传成功', 'success');
+                        } else {
+                            showMessage(data.error || '头像上传失败', 'error');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        showMessage('上传过程中发生错误', 'error');
+                    })
+                    .finally(() => {
+                        changePhoto.textContent = '更换头像';
+                        changePhoto.style.pointerEvents = 'auto';
+                        avatarInput.value = '';
+                    });
+                }
+            });
+
+            // 修改密码功能 - 简化前端验证，主要验证在后端
+            saveButton.addEventListener('click', function() {
+                const formData = new FormData(passwordForm);
+
+                // 简单的前端验证
+                const currentPassword = formData.get('current_password');
+                const newPassword = formData.get('new_password');
+                const confirmPassword = formData.get('confirm_password');
+
+                if (!currentPassword) {
+                    showMessage('请输入当前密码', 'error');
+                    return;
+                }
+
+                if (!newPassword) {
+                    showMessage('请输入新密码', 'error');
+                    return;
+                }
+
+                if (!confirmPassword) {
+                    showMessage('请确认新密码', 'error');
+                    return;
+                }
+
+                if (newPassword !== confirmPassword) {
+                    showMessage('两次输入的密码不一致', 'error');
+                    return;
+                }
+
+                // 发送修改密码请求到后端
+                fetch('/proSet/change_password/', {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-CSRFToken': csrfToken
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status) {
+                        showMessage('密码修改成功', 'success');
+                        passwordForm.reset();
+                    } else {
+                        if (data.error) {
+                            // 显示第一个错误信息
+                            const firstError = Object.values(data.error)[0];
+                            showMessage(firstError[0], 'error');
+                        } else {
+                            showMessage('密码修改失败', 'error');
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showMessage('修改过程中发生错误', 'error');
+                });
+            });
+
+            // 取消按钮处理
+            cancelButton.addEventListener('click', function() {
+                if(confirm('确定要取消更改吗？所有未保存的更改将丢失。')) {
+                    passwordForm.reset();
+                    showMessage('更改已取消', 'success');
+                }
+            });
+        });
+    </script>
+{% endblock %}
